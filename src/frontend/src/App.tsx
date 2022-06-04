@@ -2,55 +2,33 @@ import React from 'react';
 import logo from './logo.svg';
 import { Counter } from './features/counter/Counter';
 import './App.css';
+import { GameSelector } from './features/GameSelector/GameSelector';
+import { WaitingScreen } from './features/WaitingScreen/WaitingScreen';
+
+import {io, Socket} from "socket.io-client"
+import { ClientToServerEvents, ServerToClientEvents } from "./shared/SocketIOEvents";
+
+export interface ServerSocketInfo {
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+  userid: string
+}
 
 function App() {
+
+  let userId = localStorage.getItem("userId") || crypto.randomUUID();
+  localStorage.setItem("userId", userId);
+  console.log("userid: ", userId);
+  
+  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
+  let socketInfoBundle = {
+    socket: socket,
+    userid: userId
+  }
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <GameSelector socketInfo={socketInfoBundle}></GameSelector>
+      <WaitingScreen socketInfo={socketInfoBundle}></WaitingScreen>
     </div>
   );
 }

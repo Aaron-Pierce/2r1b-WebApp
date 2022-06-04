@@ -6,13 +6,15 @@ COPY ["package.json", "package-lock.json*", "tsconfig.json", "./"]
 
 RUN npm install
 
-COPY . .
+COPY ["src/frontend/*.json", "./frontend/"]
 
 WORKDIR /app/src/frontend
 
 RUN npm install
 
 WORKDIR /app
+
+COPY . .
 
 RUN ["npm", "run", "build-frontend"]
 RUN ["npm", "run", "build-server"]
