@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
 import { GameState } from '../shared/types';
+import { verifyPairs } from '../shared/cards';
 
 const app = express();
 const httpServer = createServer(app);
@@ -55,15 +56,15 @@ httpServer.listen(port, () => {
         console.log("requested join of ", gameCode);
         let rejoining = runningGames[gameCode].players.has(userId);
         runningGames[gameCode].players.add(userId);
-        socket.emit("confirmJoin", gameCode);
-        
-        
-        if(!rejoining){
+        socket.emit("confirmJoin", gameCode, runningGames[gameCode].creatorId === userId);
+
+
+        if (!rejoining) {
           console.log("A player has joined! Names: ", runningGames[gameCode].players);
           // tell everyone a new list of names
-          for(let socketId in socketIdToPlayerIDMap){
-            if(runningGames[gameCode].players.has(socketIdToPlayerIDMap[socketId])){
-              if(socketId !== socket.id){
+          for (let socketId in socketIdToPlayerIDMap) {
+            if (runningGames[gameCode].players.has(socketIdToPlayerIDMap[socketId])) {
+              if (socketId !== socket.id) {
                 socket.to(socketId).emit("announceJoin", playersName);
               }
             }
@@ -75,11 +76,16 @@ httpServer.listen(port, () => {
 
 
     socket.on("createGame", (gameID, creatorId) => {
-      runningGames[gameID] = {
-        players: new Set(),
-        creatorId,
-        roundStructure: [],
-        state: GameState.WaitingOnPlayers
+      if (runningGames[gameID]) {
+        socket.emit("confirmGameCreation", false, gameID);
+      } else {
+        runningGames[gameID] = {
+          players: new Set(),
+          creatorId: creatorId,
+          roundStructure: [],
+          state: GameState.WaitingOnPlayers
+        };
+        socket.emit("confirmGameCreation", true, gameID);
       }
     });
 
@@ -97,3 +103,6 @@ httpServer.listen(port, () => {
   })
 })
 
+
+
+verifyPairs();

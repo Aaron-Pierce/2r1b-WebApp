@@ -1,14 +1,12 @@
 import { GameState } from "./types";
 
 export interface ServerToClientEvents {
-    noArg: () => void;
-    basicEmit: (a: number, b: string, c: Buffer) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
     confirmJoin: (gameCode: string, isCreator: boolean) => void;
     noSuchGame: () => void;
     gameStateResponse: (gameState: GameState) => void;
     namesList: (nameList: String[]) => void;
     announceJoin: (name: String) => void;
+    confirmGameCreation: (success: boolean, name: string) => void;
 }
 
 export interface ClientToServerEvents {

@@ -1,0 +1,7 @@
+.playsetCard{
+    display: inline-block;
+}
+
+.playsetCard img {
+    max-height: 33vh;
+}

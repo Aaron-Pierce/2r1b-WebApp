@@ -46,6 +46,15 @@ export function GameSelector(props: GameSelectorProps){
     }
 
 
+    props.socketInfo.socket.on("confirmGameCreation", (success, gameId) => {
+        console.log(success, gameId);
+        
+        if(success){
+            (document.getElementById("gameId") as HTMLInputElement).value = "";
+            (document.getElementById("successIndicator") as HTMLParagraphElement).innerText = "Created game " + gameId;
+        }
+    })
+
     return (
         <div id="gameSelectorSection">
             <h1>Game Selector:</h1>
@@ -60,7 +69,8 @@ export function GameSelector(props: GameSelectorProps){
             <hr/>
             <div id="createGame">
                 <input id="gameId" placeholder="gameId"></input>
-                <button onClick={createGame}>Create</button>
+                <button onClick={createGame} onKeyDown={evt => {if(evt.key === "Enter") createGame()}}>Create</button>
+                <p id="successIndicator"></p>
             </div>
         </div>
     )

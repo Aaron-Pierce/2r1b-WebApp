@@ -5,8 +5,10 @@ import './App.css';
 import { GameSelector } from './features/GameSelector/GameSelector';
 import { WaitingScreen } from './features/WaitingScreen/WaitingScreen';
 
+
 import {io, Socket} from "socket.io-client"
 import { ClientToServerEvents, ServerToClientEvents } from "./shared/SocketIOEvents";
+import { nanoid } from 'nanoid';
 
 export interface ServerSocketInfo {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -15,7 +17,7 @@ export interface ServerSocketInfo {
 
 function App() {
 
-  let userId = localStorage.getItem("userId") || crypto.randomUUID();
+  let userId = localStorage.getItem("userId") || nanoid();
   localStorage.setItem("userId", userId);
   console.log("userid: ", userId);
   
