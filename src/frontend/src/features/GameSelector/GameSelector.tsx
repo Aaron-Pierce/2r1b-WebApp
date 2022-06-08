@@ -1,4 +1,4 @@
-import { useState, FormEvent, KeyboardEvent } from "react"
+import { useState, FormEvent, KeyboardEvent, useEffect } from "react"
 import { ServerSocketInfo } from "../../App";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectCode, selectIsCreator, selectState, setCode, setIsCreator } from "./gameSlice";
@@ -13,7 +13,6 @@ export function GameSelector(props: GameSelectorProps){
     let [gameCode, setGameCode] = useState("");
     let dispatch = useAppDispatch();
 
-    if(currentGameCode !== null) return <></>;
 
 
 
@@ -46,21 +45,30 @@ export function GameSelector(props: GameSelectorProps){
     }
 
 
-    props.socketInfo.socket.on("confirmGameCreation", (success, gameId) => {
-        console.log(success, gameId);
-        
-        if(success){
-            (document.getElementById("gameId") as HTMLInputElement).value = "";
-            (document.getElementById("successIndicator") as HTMLParagraphElement).innerText = "Created game " + gameId;
+    useEffect(() => {
+        props.socketInfo.socket.on("confirmGameCreation", (success, gameId) => {
+            console.log(success, gameId);
+            
+            if(success){
+                (document.getElementById("gameId") as HTMLInputElement).value = "";
+                (document.getElementById("successIndicator") as HTMLParagraphElement).innerText = "Created game " + gameId;
+            }
+        })
+    
+        return () => {
+            props.socketInfo.socket.off("confirmGameCreation");
         }
     })
 
+
+
+    if(currentGameCode !== null) return <></>;
     return (
         <div id="gameSelectorSection">
             <h1>Game Selector:</h1>
             <input placeholder="Your Name" id="yourNameInput" name="name"></input>
             <br></br>
-            <label htmlFor="yourNameInput">(Use your real one, it'll be shown on your card.)</label>
+            <label htmlFor="yourNameInput">(Use your real one, it'll be shown on your card)</label>
             <br></br>
             <input placeholder="Game code" onChange={handleChange} value={gameCode} onKeyDown={onKeyDown}></input>
             <button onClick={joinGame}>submit</button>
@@ -68,8 +76,8 @@ export function GameSelector(props: GameSelectorProps){
             <hr/>
             <hr/>
             <div id="createGame">
-                <input id="gameId" placeholder="gameId"></input>
-                <button onClick={createGame} onKeyDown={evt => {if(evt.key === "Enter") createGame()}}>Create</button>
+                <input id="gameId" placeholder="gameId" onKeyDown={(evt) => evt.key === "Enter" ? createGame() : 0}></input>
+                <button onClick={createGame}>Create</button>
                 <p id="successIndicator"></p>
             </div>
         </div>

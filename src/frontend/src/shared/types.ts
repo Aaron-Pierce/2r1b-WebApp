@@ -1,6 +1,6 @@
 export enum GameState {
-    WaitingOnPlayers,
-    InRound,
-    BetweenRounds,
-    Concluded
-  }
+  WaitingOnPlayers,
+  InRound,
+  BetweenRounds,
+  Concluded
+}

@@ -1,0 +1,17 @@
+.groupedCard:not(:first-of-type) {
+    position: relative;
+}
+
+.groupedCard:first-of-type{
+    /* background-color: purple; */
+}
+
+.groupedCard img {
+    max-height: 30vh;
+}
+
+.groupedCard{
+    box-shadow: 2px 2px 10px black;
+    background-color: transparent;
+    max-height: 30vh;
+}

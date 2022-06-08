@@ -6,6 +6,7 @@ import { createServer } from "http";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
 import { GameState } from '../shared/types';
 import { verifyPairs } from '../shared/cards';
+import { Playset } from '../shared/playset';
 
 const app = express();
 const httpServer = createServer(app);
@@ -29,7 +30,8 @@ interface Game {
   players: Set<String>,
   state: GameState,
   creatorId: string,
-  roundStructure: RoundInfo[]
+  roundStructure: RoundInfo[],
+  playset: Playset
 }
 
 let socketIdToPlayerIDMap: { [socketId: string]: string } = {};
@@ -47,20 +49,27 @@ httpServer.listen(port, () => {
   io.on("connect", (socket) => {
     console.log("a user has connected");
 
+    function getSocketIDsForGame(gameCode: string){
+      let ids = [];
+      for (let socketId in socketIdToPlayerIDMap) {
+        if (runningGames[gameCode].players.has(socketIdToPlayerIDMap[socketId])) {
+          ids.push(socketId);
+        }
+      }
+      return ids;
+    }
+
     socket.on("joinGame", (gameCode, userId, playersName) => {
       socketIdToPlayerIDMap[socket.id] = userId;
       playerIdNames[userId] = playersName;
       if (Object.keys(runningGames).indexOf(gameCode) === -1) {
         socket.emit("noSuchGame");
       } else {
-        console.log("requested join of ", gameCode);
         let rejoining = runningGames[gameCode].players.has(userId);
-        runningGames[gameCode].players.add(userId);
         socket.emit("confirmJoin", gameCode, runningGames[gameCode].creatorId === userId);
-
-
         if (!rejoining) {
-          console.log("A player has joined! Names: ", runningGames[gameCode].players);
+          console.log("A player has joined! Players: ", runningGames[gameCode].players);
+          runningGames[gameCode].players.add(userId);
           // tell everyone a new list of names
           for (let socketId in socketIdToPlayerIDMap) {
             if (runningGames[gameCode].players.has(socketIdToPlayerIDMap[socketId])) {
@@ -83,7 +92,10 @@ httpServer.listen(port, () => {
           players: new Set(),
           creatorId: creatorId,
           roundStructure: [],
-          state: GameState.WaitingOnPlayers
+          state: GameState.WaitingOnPlayers,
+          playset: {
+            cardGroups: []
+          }
         };
         socket.emit("confirmGameCreation", true, gameID);
       }
@@ -98,6 +110,18 @@ httpServer.listen(port, () => {
     socket.on("getNamesList", (gameCode) => {
       if (runningGames[gameCode]) {
         socket.emit("namesList", Array.from(runningGames[gameCode].players).map(userId => playerIdNames[userId.toString()]))
+      }
+    })
+
+    socket.on("setPlayset", (gameCode, playset) => {
+      if(runningGames[gameCode]){
+        runningGames[gameCode].playset = playset;
+        console.log(getSocketIDsForGame(gameCode).map(e => socketIdToPlayerIDMap[e]));
+        socket.emit("newPlayset", playset);
+        getSocketIDsForGame(gameCode).forEach(socketId => {
+          console.log("emitting new playset to ", socketId);          
+          socket.to(socketId).emit("newPlayset", playset);
+        })
       }
     })
   })

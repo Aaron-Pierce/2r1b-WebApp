@@ -10,6 +10,7 @@
 
 #playsetRow {
     display: flex;
+    gap: 3%;
     flex-direction: row;
     max-height: 35vh;
     width: 100%;
@@ -20,4 +21,8 @@
 
     box-sizing: border-box;
 
+}
+
+.playsetUnsaved{
+    background-color: rgb(255, 200, 100)!important;
 }

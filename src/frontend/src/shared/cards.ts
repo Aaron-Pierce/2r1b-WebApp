@@ -1,7 +1,36 @@
+import { Playset } from "./playset";
+
 export type Card = {
     displayName: String,
     cardId: String, // ${cardId}.jpg should be the image name
     pairsWith: String[]
+}
+
+export type CardGroup = {
+    cards: Card[]
+}
+
+export function getCardByID(cardId: String){
+    for(let c of Cards){
+        if(c.cardId === cardId) return c;
+    }
+
+    throw "Card Not Found " + cardId;
+}
+
+
+export function cardGroupFromMember(card: Card): CardGroup{
+    return {
+        cards: [card.cardId, ...card.pairsWith].map(getCardByID)
+    }
+}
+
+export function getCardsFromPlayset(playset: Playset): Card[] {
+    let cards: Card[] = [];
+    for(let group of playset.cardGroups){
+        cards.push(...group.cards);
+    }
+    return cards;
 }
 
 export const Cards: Card[] = [

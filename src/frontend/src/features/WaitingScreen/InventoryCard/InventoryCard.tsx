@@ -1,10 +1,11 @@
 import { Card } from "../../../shared/cards";
+import { Playset } from "../../../shared/playset";
 
 import styles from "./InventoryCard.module.css";
 
 export interface InventoryCardProps {
     card: Card,
-    activePlayset: Card[],
+    activePlayset: Playset,
     activateCard: (card: Card) => void,
 }
 
