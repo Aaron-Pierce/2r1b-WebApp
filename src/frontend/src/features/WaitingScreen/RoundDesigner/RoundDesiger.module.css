@@ -1,0 +1,19 @@
+#roundDesigner{
+    padding: 1em;
+    border: 2px solid black;
+    overflow-x: scroll;
+}
+
+.roundCard{
+    padding: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.roundCard:not(:first-of-type){
+    border-left: 1px solid black;
+}
+
+#roundsRow{
+    display: inline-flex;
+}

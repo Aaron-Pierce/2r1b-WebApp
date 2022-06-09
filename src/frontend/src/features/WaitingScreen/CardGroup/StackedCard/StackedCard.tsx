@@ -7,7 +7,7 @@ interface GroupedCardProps{
 }
 
 export function GroupedCard(props: GroupedCardProps){
-    return <div className={styles.groupedCard} style={{top: `-${Math.max(0, 100 - props.index * 10 + 100*(props.index-1))}%`, left: `${5 * props.index}%`}}>
+    return <div className={styles.groupedCard} style={{top: `-${Math.max(0, 250*(props.index) - 10*props.index)}px`, left: `${10 * props.index}px`}}>
         <img src={`/cardImages/${props.card.cardId}.jpg`}></img>
     </div>
 }

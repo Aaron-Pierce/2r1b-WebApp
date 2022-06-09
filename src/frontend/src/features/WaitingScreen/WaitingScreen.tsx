@@ -10,6 +10,8 @@ import { PlaysetCard } from "./PlaysetCard/PlaysetCard";
 import { InventoryCard } from "./InventoryCard/InventoryCard";
 import { CardStack } from "./CardGroup/CardStack";
 import { numCardsInPlayset, Playset } from "../../shared/playset";
+import { PlaysetComponent } from "./Playset/PlaysetComponent";
+import { RoundDesigner } from "./RoundDesigner/RoundDesiger";
 
 
 export interface WaitingScreenProps {
@@ -22,16 +24,18 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let currentGameState = useAppSelector(selectState);
     let isGameCreator = useAppSelector(selectIsCreator);
     let dispatch = useAppDispatch();
-    
+
     let [currentPlayset, setCurrentPlayset] = useState<Playset>({
         cardGroups: []
     });
     let [playsetHasUnsavedChanges, setPlaysetHasUnsavedChanges] = useState(false);
-    
-    
+
+
     let [nameList, setNameList] = useState<String[]>([]);
 
     let [lastGameStateQueryTime, setLastGameStateQueryTime] = useState<number>(0);
+
+    let [isPlaysetViewCollapsed, setPlaysetViewCollapsed] = useState(false);
 
 
     function activateCard(card: Card) {
@@ -72,7 +76,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
                 let randId = Math.random()
                 props.socketInfo.socket.on("gameStateResponse", (state: GameState) => {
                     console.log("triggered event handler", randId);
-                    
+
                     console.log("game is in state", state);
                     if (currentGameState !== state) {
                         dispatch(setState(state));
@@ -95,7 +99,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
             props.socketInfo.socket.on("newPlayset", (playset: Playset) => {
                 console.log("new playset: ", playset);
-                
+
                 setCurrentPlayset(playset);
                 setPlaysetHasUnsavedChanges(false);
             })
@@ -109,8 +113,8 @@ export function WaitingScreen(props: WaitingScreenProps) {
         }
     })
 
-    function setPlayset(){
-        if(gameCode !== null){
+    function setPlayset() {
+        if (gameCode !== null) {
             props.socketInfo.socket.emit("setPlayset", gameCode, currentPlayset);
         }
     }
@@ -119,7 +123,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
     if (gameCode == null) return <></>;
     if (currentGameState !== GameState.WaitingOnPlayers) return <></>;
 
-
     return (
         <div id="waitingScreen">
             <h1>{gameCode}</h1>
@@ -127,31 +130,37 @@ export function WaitingScreen(props: WaitingScreenProps) {
                 <p>Players ({nameList.length}): {nameList.join(", ")}</p>
             </div>
             <hr />
-            {isGameCreator ? (
-                <div id="playsetDesigner">
-                    <p>Design a playset..</p>
-                    <div id={styles.playsetWrapper} className={playsetHasUnsavedChanges ? styles.playsetUnsaved : ""}>
-                        <h1>Current Playset ({numCardsInPlayset(currentPlayset)})</h1>
-                        <div id={styles.playsetRow}>
-                            {/* {
-                                currentPlayset.map(card => <PlaysetCard key={card.cardId.toString()} card={card}></PlaysetCard>)
-                            } */}
 
+            {isGameCreator && (
+                <RoundDesigner playerCount={nameList.length}></RoundDesigner>
+            )}
+
+            {isGameCreator && (
+                <span>
+                    <input id="collapsePlaysetDesignerCheckbox" type={"checkbox"} checked={isPlaysetViewCollapsed} onChange={() => setPlaysetViewCollapsed(!isPlaysetViewCollapsed)}></input>
+                    <label htmlFor="collapsePlaysetDesignerCheckbox">Collapse Playset Designer</label>
+                </span>
+            )}
+
+
+            {isGameCreator ? (
+                !isPlaysetViewCollapsed && (
+                    <div id="playsetDesigner">
+                        <PlaysetComponent isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
+                        <div id="cardInventory">
                             {
-                                currentPlayset.cardGroups.map((group, ind) => <CardStack key={ind} group={group} playset={currentPlayset} removeCallback={() => removeStackFromPlaysetByIndex(ind)}></CardStack>)
+                                Cards.map(card => (
+                                    <InventoryCard key={card.cardId.toString()} card={card} activePlayset={currentPlayset} activateCard={activateCard}></InventoryCard>
+                                ))
                             }
                         </div>
-                        <button onClick={setPlayset}>Set Playset</button>
                     </div>
-                    <div id="cardInventory">
-                        {
-                            Cards.map(card => (
-                                <InventoryCard key={card.cardId.toString()} card={card} activePlayset={currentPlayset} activateCard={activateCard}></InventoryCard>
-                            ))
-                        }
-                    </div>
-                </div>
-            ) : <></>}
+                )
+            ) : (
+                <PlaysetComponent isEditable={false} playset={currentPlayset}></PlaysetComponent>
+            )}
+
+
         </div>
     )
 }

@@ -1,9 +1,8 @@
 .inventoryCard{
     display: inline-block;
-    max-height: 33vh;
-    height: 100%;
+    max-height: 250px;
 }
 
 .inventoryCard img{
-    max-height: 30vh;
+    max-height: 250px;
 }

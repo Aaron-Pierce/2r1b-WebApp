@@ -4,7 +4,7 @@ import path from 'path';
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
-import { GameState } from '../shared/types';
+import { GameState, RoundInfo } from '../shared/types';
 import { verifyPairs } from '../shared/cards';
 import { Playset } from '../shared/playset';
 
@@ -21,10 +21,7 @@ app.get('/', (req, res) => {
 
 
 
-interface RoundInfo {
-  minutes: number,
-  numHostages: number
-}
+
 
 interface Game {
   players: Set<String>,
