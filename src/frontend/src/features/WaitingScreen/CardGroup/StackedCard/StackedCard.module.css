@@ -2,9 +2,6 @@
     position: relative;
 }
 
-.groupedCard:first-of-type{
-    /* background-color: purple; */
-}
 
 .groupedCard img {
     max-height: 250px;

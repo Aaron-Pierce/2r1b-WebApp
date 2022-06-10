@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
 import { GameState, RoundInfo } from '../shared/types';
-import { verifyPairs } from '../shared/cards';
+import { Card, getCardsFromPlayset, verifyPairs } from '../shared/cards';
 import { Playset } from '../shared/playset';
 
 const app = express();
@@ -29,6 +29,10 @@ interface Game {
   creatorId: string,
   roundStructure: RoundInfo[],
   playset: Playset
+  playerCardMap: {[playerId: string]: Card};
+  buriedCard: Card | null;
+  currentRoundIndex: number;
+  secondsLeftInRound: number;
 }
 
 let socketIdToPlayerIDMap: { [socketId: string]: string } = {};
@@ -46,7 +50,7 @@ httpServer.listen(port, () => {
   io.on("connect", (socket) => {
     console.log("a user has connected");
 
-    function getSocketIDsForGame(gameCode: string){
+    function getSocketIDsForGame(gameCode: string) {
       let ids = [];
       for (let socketId in socketIdToPlayerIDMap) {
         if (runningGames[gameCode].players.has(socketIdToPlayerIDMap[socketId])) {
@@ -92,7 +96,11 @@ httpServer.listen(port, () => {
           state: GameState.WaitingOnPlayers,
           playset: {
             cardGroups: []
-          }
+          },
+          playerCardMap: {},
+          buriedCard: null,
+          currentRoundIndex: -1,
+          secondsLeftInRound: -1
         };
         socket.emit("confirmGameCreation", true, gameID);
       }
@@ -111,14 +119,92 @@ httpServer.listen(port, () => {
     })
 
     socket.on("setPlayset", (gameCode, playset) => {
-      if(runningGames[gameCode]){
+      if (runningGames[gameCode]) {
         runningGames[gameCode].playset = playset;
         console.log(getSocketIDsForGame(gameCode).map(e => socketIdToPlayerIDMap[e]));
         socket.emit("newPlayset", playset);
         getSocketIDsForGame(gameCode).forEach(socketId => {
-          console.log("emitting new playset to ", socketId);          
+          console.log("emitting new playset to ", socketId);
           socket.to(socketId).emit("newPlayset", playset);
         })
+      }
+    })
+
+    socket.on("setRoundInfo", (gameCode, roundInfo) => {
+      if (runningGames[gameCode]) {
+        runningGames[gameCode].roundStructure = roundInfo;
+        console.log(roundInfo);
+
+        socket.emit("confirmNewRoundInfo", false, "");
+      }
+    })
+
+    socket.on("requestStartGame", (gameCode) => {
+      if (runningGames[gameCode]) {
+        let game = runningGames[gameCode];
+        if (game.creatorId === socketIdToPlayerIDMap[socket.id]) {
+          if (true && true && true) { // a bunch of conditions to make sure the game is valid
+            game.state = GameState.RoundStart;
+
+
+            // deal cards
+
+            let cards = getCardsFromPlayset(game.playset);
+
+            // fischer-yates https://bost.ocks.org/mike/shuffle/
+
+            function shuffle(array: any[]) {
+              let m = array.length, t, i;
+            
+              // While there remain elements to shuffle…
+              while (m) {
+            
+                // Pick a remaining element…
+                i = Math.floor(Math.random() * m--);
+            
+                // And swap it with the current element.
+                t = array[m];
+                array[m] = array[i];
+                array[i] = t;
+              }
+            
+              return array;
+            }
+            
+            cards = shuffle(cards);
+
+
+
+            let playerIDs = shuffle(JSON.parse(JSON.stringify(Array.from(game.players))));
+            if(cards.length === playerIDs.length || cards.length === playerIDs.length + 1){
+              for(let playerId of playerIDs){
+                runningGames[gameCode].playerCardMap[playerId] = cards.pop() as Card;
+              }
+            }
+
+            if(cards.length === 1){
+              runningGames[gameCode].buriedCard = cards[0];
+            } else if(cards.length !== 0){
+              console.error("Somehow finished with non-empty list of cards", cards);
+            }
+            
+
+
+            socket.emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socket.id]]);
+            getSocketIDsForGame(gameCode).forEach(socketId => {
+              socket.to(socketId).emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socketId]]);
+            })
+
+            // leave some time for the opening cutscene
+            setTimeout(() => {
+              if (runningGames[gameCode].state === GameState.RoundStart) {
+                runningGames[gameCode].state = GameState.InRound;
+                console.log("Game is now fully running with ", runningGames[gameCode]);
+                console.log(JSON.stringify(runningGames[gameCode]));
+              }
+            }, 1000);
+          }
+        }
       }
     })
   })

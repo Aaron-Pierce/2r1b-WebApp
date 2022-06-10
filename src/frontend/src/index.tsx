@@ -5,14 +5,27 @@ import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import { io, Socket } from 'socket.io-client';
+import { ClientToServerEvents, ServerToClientEvents } from './shared/SocketIOEvents';
+import { nanoid } from 'nanoid';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
+
+let userId = localStorage.getItem("userId") || nanoid();
+localStorage.setItem("userId", userId);
+
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
+let socketInfoBundle = {
+  socket: socket,
+  userid: userId
+}
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <App socketInfo={socketInfoBundle} />
     </Provider>
   </React.StrictMode>
 );

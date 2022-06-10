@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { GameState } from "../../shared/types";
+import { GameState, RoundInfo } from "../../shared/types";
 import { ServerSocketInfo } from "../../App";
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { GameInfo, selectCode, selectIsCreator, selectState, setState } from "../GameSelector/gameSlice"
+import { selectCode, selectIsCreator, selectState, setState } from "../GameSelector/gameSlice"
 
 import styles from "./WaitingScreen.module.css";
 import { Card, cardGroupFromMember, Cards } from "../../shared/cards";
@@ -36,6 +36,8 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let [lastGameStateQueryTime, setLastGameStateQueryTime] = useState<number>(0);
 
     let [isPlaysetViewCollapsed, setPlaysetViewCollapsed] = useState(false);
+
+    let [gameStartErrorMessages, setGameStartErrorMessages] = useState("");
 
 
     function activateCard(card: Card) {
@@ -104,11 +106,20 @@ export function WaitingScreen(props: WaitingScreenProps) {
                 setPlaysetHasUnsavedChanges(false);
             })
 
+            props.socketInfo.socket.on("confirmNewRoundInfo", (hasError: boolean, message: string) => {
+                if(hasError){
+                    alert(message)
+                } else {
+                    alert("Successfully updated round info");
+                }
+            })
+            
             return () => {
-                props.socketInfo.socket.off("gameStateResponse")
-                props.socketInfo.socket.off("namesList")
-                props.socketInfo.socket.off("announceJoin")
-                props.socketInfo.socket.off("newPlayset")
+                props.socketInfo.socket.off("gameStateResponse");
+                props.socketInfo.socket.off("namesList");
+                props.socketInfo.socket.off("announceJoin");
+                props.socketInfo.socket.off("newPlayset");
+                props.socketInfo.socket.off("confirmNewRoundInfo");
             }
         }
     })
@@ -116,6 +127,18 @@ export function WaitingScreen(props: WaitingScreenProps) {
     function setPlayset() {
         if (gameCode !== null) {
             props.socketInfo.socket.emit("setPlayset", gameCode, currentPlayset);
+        }
+    }
+
+    function setRoundInfo(roundInfo: RoundInfo[]){
+        if(gameCode !== null){
+            props.socketInfo.socket.emit("setRoundInfo", gameCode, roundInfo);
+        }
+    }
+
+    function sendStartGameMessage(){
+        if(gameCode !== null){
+            props.socketInfo.socket.emit("requestStartGame", gameCode);
         }
     }
 
@@ -132,7 +155,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
             <hr />
 
             {isGameCreator && (
-                <RoundDesigner playerCount={nameList.length}></RoundDesigner>
+                <RoundDesigner playerCount={nameList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
             )}
 
             {isGameCreator && (
@@ -159,6 +182,15 @@ export function WaitingScreen(props: WaitingScreenProps) {
             ) : (
                 <PlaysetComponent isEditable={false} playset={currentPlayset}></PlaysetComponent>
             )}
+
+            {
+                isGameCreator && (
+                    <div>
+                    <button onClick={sendStartGameMessage}>Start Game</button>
+                    <p>{gameStartErrorMessages}</p>
+                    </div>
+                )
+            }
 
 
         </div>

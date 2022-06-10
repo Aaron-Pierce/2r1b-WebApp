@@ -1,6 +1,6 @@
 import { Card } from "./cards";
 import { Playset } from "./playset";
-import { GameState } from "./types";
+import { GameState, RoundInfo } from "./types";
 
 export interface ServerToClientEvents {
     confirmJoin: (gameCode: string, isCreator: boolean) => void;
@@ -10,6 +10,8 @@ export interface ServerToClientEvents {
     announceJoin: (name: String) => void;
     confirmGameCreation: (success: boolean, name: string) => void;
     newPlayset: (playset: Playset) => void;
+    confirmNewRoundInfo: (hasError: boolean, message: string) => void;
+    gameStartSignal: (roundInfo: RoundInfo[], playset: Playset, myCard: Card) => void;
 }
 
 export interface ClientToServerEvents {
@@ -18,6 +20,8 @@ export interface ClientToServerEvents {
     queryGameState: (gameCode: string) => void;
     getNamesList: (gameCode: string) => void;
     setPlayset: (gameCode: string, playset: Playset) => void;
+    setRoundInfo: (gameCode: string, roundInfo: RoundInfo[]) => void;
+    requestStartGame: (gameCode: string) => void;
 }
 
 export interface InterServerEvents {
