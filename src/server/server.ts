@@ -29,7 +29,7 @@ interface Game {
   creatorId: string,
   roundStructure: RoundInfo[],
   playset: Playset
-  playerCardMap: {[playerId: string]: Card};
+  playerCardMap: { [playerId: string]: Card };
   buriedCard: Card | null;
   currentRoundIndex: number;
   secondsLeftInRound: number;
@@ -68,7 +68,15 @@ httpServer.listen(port, () => {
       } else {
         let rejoining = runningGames[gameCode].players.has(userId);
         socket.emit("confirmJoin", gameCode, runningGames[gameCode].creatorId === userId);
-        if (!rejoining) {
+
+        if (rejoining) {
+          // player is already in the game, we should push them along if appropriate
+          if (runningGames[gameCode].state === GameState.InRound || runningGames[gameCode].state === GameState.RoundStart) {
+            let game = runningGames[gameCode];
+            socket.emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socket.id]]);
+          }
+        } else {
+          // new player
           console.log("A player has joined! Players: ", runningGames[gameCode].players);
           runningGames[gameCode].players.add(userId);
           // tell everyone a new list of names
@@ -155,39 +163,41 @@ httpServer.listen(port, () => {
 
             function shuffle(array: any[]) {
               let m = array.length, t, i;
-            
+
               // While there remain elements to shuffle…
               while (m) {
-            
+
                 // Pick a remaining element…
                 i = Math.floor(Math.random() * m--);
-            
+
                 // And swap it with the current element.
                 t = array[m];
                 array[m] = array[i];
                 array[i] = t;
               }
-            
+
               return array;
             }
-            
+
             cards = shuffle(cards);
 
 
 
             let playerIDs = shuffle(JSON.parse(JSON.stringify(Array.from(game.players))));
-            if(cards.length === playerIDs.length || cards.length === playerIDs.length + 1){
-              for(let playerId of playerIDs){
-                runningGames[gameCode].playerCardMap[playerId] = cards.pop() as Card;
-              }
+            if (cards.length !== playerIDs.length && cards.length !== playerIDs.length + 1) { 
+              console.error("too many cards for players!");
+            }
+            for (let playerId of playerIDs) {
+              runningGames[gameCode].playerCardMap[playerId] = cards.pop() as Card;
             }
 
-            if(cards.length === 1){
+
+            if (cards.length === 1) {
               runningGames[gameCode].buriedCard = cards[0];
-            } else if(cards.length !== 0){
+            } else if (cards.length !== 0) {
               console.error("Somehow finished with non-empty list of cards", cards);
             }
-            
+
 
 
             socket.emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socket.id]]);

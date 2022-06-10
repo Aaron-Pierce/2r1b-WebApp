@@ -1,17 +1,27 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GameState } from '../../shared/types';
+import { GameState, RoundInfo } from '../../shared/types';
 import { RootState } from '../../app/store';
+import { Card } from '../../shared/cards';
+import { Playset } from '../../shared/playset';
 
 export interface GameInfo {
     code: string | null,
     state: GameState,
     isCreator: Boolean
+    playerInfo: PlayerInfo | null
+}
+
+export interface PlayerInfo {
+    card: Card,
+    activePlayset: Playset,
+    roundStructure: RoundInfo[]
 }
 
 const initialState: GameInfo = {
     code: null,
     state: GameState.WaitingOnPlayers,
-    isCreator: false
+    isCreator: false,
+    playerInfo: null
 };
 
 export const gameSlice = createSlice({
@@ -34,11 +44,14 @@ export const gameSlice = createSlice({
         },
         setIsCreator: (state, action: PayloadAction<Boolean>) => {
             state.isCreator = action.payload;
+        },
+        setPlayerInfo: (state, action: PayloadAction<PlayerInfo | null>) => {
+            state.playerInfo = action.payload;
         }
     }
 });
 
-export const { setCode, setState, setIsCreator } = gameSlice.actions;
+export const { setCode, setState, setIsCreator, setPlayerInfo } = gameSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -46,6 +59,7 @@ export const { setCode, setState, setIsCreator } = gameSlice.actions;
 export const selectCode = (state: RootState) => state.game.code;
 export const selectState = (state: RootState) => state.game.state;
 export const selectIsCreator = (state: RootState) => state.game.isCreator;
+export const selectPlayerInfo = (state: RootState) => state.game.playerInfo;
 
 
 export default gameSlice.reducer;

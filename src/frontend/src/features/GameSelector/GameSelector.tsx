@@ -17,7 +17,7 @@ export function GameSelector(props: GameSelectorProps){
 
 
     function handleChange(evt: FormEvent){
-        setGameCode(((evt.target) as HTMLInputElement).value)        
+        setGameCode(((evt.target) as HTMLInputElement).value.toLowerCase())        
     }
 
 

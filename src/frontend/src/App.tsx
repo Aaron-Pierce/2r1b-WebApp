@@ -13,7 +13,8 @@ import { useAppDispatch } from './app/hooks';
 import { GameState, RoundInfo } from './shared/types';
 import { Playset } from './shared/playset';
 import { Card } from './shared/cards';
-import { setState } from './features/GameSelector/gameSlice';
+import { setPlayerInfo, setState } from './features/GameSelector/gameSlice';
+import { GameView } from './features/GameView/GameView';
 
 export interface ServerSocketInfo {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -33,6 +34,14 @@ function App(props: AppProps) {
     let gameStartListener = (roundInfo: RoundInfo[], playset: Playset, myCard: Card) => {
       console.log("Game is starting", roundInfo, playset, myCard);
       dispatch(setState(GameState.BetweenRounds));
+
+      // play an intro animatic
+
+      dispatch(setPlayerInfo({
+        activePlayset: playset,
+        card: myCard,
+        roundStructure: roundInfo
+      }))
     };
 
     props.socketInfo.socket.on("gameStartSignal", gameStartListener)
@@ -46,6 +55,7 @@ function App(props: AppProps) {
     <div className="App">
       <GameSelector socketInfo={props.socketInfo}></GameSelector>
       <WaitingScreen socketInfo={props.socketInfo}></WaitingScreen>
+      <GameView socketInfo={props.socketInfo}></GameView>
     </div>
   );
 }
