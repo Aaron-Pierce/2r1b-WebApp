@@ -26,30 +26,25 @@ export function PlayerCard(props: PlayerCardProps) {
         }
     }
 
-    function getSrc() {
-        if (cardVisibility === "none") {
-            return `cardImages/cardback.jpg`
-        } else if (cardVisibility === "always") {
-            return `cardImages/${props.card.cardId}.jpg`;
-        } else {
-            return `cardImages/${props.card.cardId}.jpg`
-        }
-    }
-
     return <div className={styles.playerCardWrapper}>
         <div className={styles.cardWrapper}>
-            <img src={getSrc()} className={((cardVisibility === "colorshare") ? styles.colorShare : " ")}></img>
+            <img src={`cardImages/${props.card.cardId}.jpg`} className={
+                `${cardVisibility !== "none" ? "" : styles.hidden} ${cardVisibility === "colorshare" ? styles.colorShare : ""}`
+            }></img>
+            <img src={`cardImages/cardback.jpg`} className={
+                `${cardVisibility === "none" ?  "" : styles.hidden}`
+            }></img>
         </div>
         <div className={styles.controlsWrapper}>
             <div>
-                <button onTouchStart={pressRevealColor} onMouseDown={pressRevealColor} onTouchEnd={releaseButton} onTouchCancel={releaseButton} onMouseUp={releaseButton}>
-                    Reveal Color (hold)
+                <button className={styles.holdButton} onTouchStart={pressRevealColor} onMouseDown={pressRevealColor} onTouchEnd={releaseButton} onTouchCancel={releaseButton} onMouseUp={releaseButton}>
+                    COLOR <br/> SHARE
                 </button>
             </div>
             <div>
 
-                <button onTouchStart={pressRevealCard} onMouseDown={pressRevealCard} onTouchEnd={releaseButton} onTouchCancel={releaseButton} onMouseUp={releaseButton}>
-                    Reveal Card (hold)
+                <button className={styles.holdButton} onTouchStart={pressRevealCard} onMouseDown={pressRevealCard} onTouchEnd={releaseButton} onTouchCancel={releaseButton} onMouseUp={releaseButton}>
+                    CARD <br/> SHARE
                 </button>
             </div>
         </div>

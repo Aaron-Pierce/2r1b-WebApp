@@ -48,7 +48,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
         for (let groups of currentPlayset.cardGroups) {
             if (!groups.cards.every(otherCard => otherCard.cardId !== card.cardId)) {
-                let choice = confirm("This will create a duplicate card, is that okay?")
+                let choice = window.confirm("This will create a duplicate card, is that okay?")
                 if (!choice) return;
                 else {
                     break;
@@ -137,6 +137,8 @@ export function WaitingScreen(props: WaitingScreenProps) {
     }
 
     function sendStartGameMessage(){
+        console.log("trying to send startGame");
+        
         if(gameCode !== null){
             props.socketInfo.socket.emit("requestStartGame", gameCode);
         }
@@ -185,9 +187,9 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
             {
                 isGameCreator && (
-                    <div>
-                    <button onClick={sendStartGameMessage}>Start Game</button>
-                    <p>{gameStartErrorMessages}</p>
+                    <div style={{padding: '2em'}}>
+                        <button onClick={() => sendStartGameMessage()}>Start Game</button>
+                        <p>{gameStartErrorMessages}</p>
                     </div>
                 )
             }

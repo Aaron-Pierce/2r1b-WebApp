@@ -14,8 +14,6 @@ export function GameSelector(props: GameSelectorProps){
     let dispatch = useAppDispatch();
 
 
-
-
     function handleChange(evt: FormEvent){
         setGameCode(((evt.target) as HTMLInputElement).value.toLowerCase())        
     }
@@ -23,12 +21,24 @@ export function GameSelector(props: GameSelectorProps){
 
     function joinGame(){
         if(gameCode.trim() !== "") {
+
+            let playerName = (document.getElementById("yourNameInput") as HTMLInputElement).value;
+            localStorage.setItem("playerName", playerName);
+
             console.log("joining", gameCode);
             props.socketInfo.socket.on("confirmJoin", (gameCode, isCreator) => {
                 dispatch(setCode(gameCode));
                 dispatch(setIsCreator(isCreator))
             })
             props.socketInfo.socket.emit("joinGame", gameCode, props.socketInfo.userid, (document.getElementById("yourNameInput") as HTMLInputElement).value);
+
+            let resetZoomTag = document.createElement("meta");
+            resetZoomTag.name="viewport";
+            resetZoomTag.content="maximum-scale=1, minimum-scale=1, initial-scale=1";
+            document.getElementsByTagName("head")[0].appendChild(resetZoomTag);
+            setTimeout(() => {
+                resetZoomTag.content="maximum-scale=10, minimum-scale=0, initial-scale=1";
+            }, 100);
         };
     }
 
@@ -40,7 +50,7 @@ export function GameSelector(props: GameSelectorProps){
     }
 
     function createGame(){
-        let gameId = (document.getElementById("gameId") as HTMLInputElement).value
+        let gameId = (document.getElementById("gameId") as HTMLInputElement).value.toLowerCase()
         props.socketInfo.socket.emit("createGame", gameId, props.socketInfo.userid);
     }
 

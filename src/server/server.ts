@@ -32,7 +32,7 @@ interface Game {
   playerCardMap: { [playerId: string]: Card };
   buriedCard: Card | null;
   currentRoundIndex: number;
-  secondsLeftInRound: number;
+  roundEndDate: Date;
 }
 
 let socketIdToPlayerIDMap: { [socketId: string]: string } = {};
@@ -74,6 +74,7 @@ httpServer.listen(port, () => {
           if (runningGames[gameCode].state === GameState.InRound || runningGames[gameCode].state === GameState.RoundStart) {
             let game = runningGames[gameCode];
             socket.emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socket.id]]);
+            socket.emit("updateTimer", game.roundEndDate.toUTCString());
           }
         } else {
           // new player
@@ -108,7 +109,7 @@ httpServer.listen(port, () => {
           playerCardMap: {},
           buriedCard: null,
           currentRoundIndex: -1,
-          secondsLeftInRound: -1
+          roundEndDate: new Date(),
         };
         socket.emit("confirmGameCreation", true, gameID);
       }
@@ -184,7 +185,7 @@ httpServer.listen(port, () => {
 
 
             let playerIDs = shuffle(JSON.parse(JSON.stringify(Array.from(game.players))));
-            if (cards.length !== playerIDs.length && cards.length !== playerIDs.length + 1) { 
+            if (cards.length !== playerIDs.length && cards.length !== playerIDs.length + 1) {
               console.error("too many cards for players!");
             }
             for (let playerId of playerIDs) {
@@ -198,11 +199,15 @@ httpServer.listen(port, () => {
               console.error("Somehow finished with non-empty list of cards", cards);
             }
 
-
+            runningGames[gameCode].currentRoundIndex = 0;
+            let roundEndTime = new Date(Date.now() + game.roundStructure[0].minutes * 60 * 1000);
+            runningGames[gameCode].roundEndDate = roundEndTime;
 
             socket.emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socket.id]]);
+            socket.emit("updateTimer", runningGames[gameCode].roundEndDate.toUTCString());
             getSocketIDsForGame(gameCode).forEach(socketId => {
               socket.to(socketId).emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socketId]]);
+              socket.to(socketId).emit("updateTimer", runningGames[gameCode].roundEndDate.toUTCString());
             })
 
             // leave some time for the opening cutscene
@@ -214,6 +219,25 @@ httpServer.listen(port, () => {
               }
             }, 1000);
           }
+        }
+      }
+    })
+
+    socket.on("requestAdvanceRound", (gameCode) => {
+      if (runningGames[gameCode]) {
+        if (Date.now() >= runningGames[gameCode].roundEndDate.getTime()) {
+          let newRoundIndex = runningGames[gameCode].currentRoundIndex + 1;
+          if (newRoundIndex < runningGames[gameCode].roundStructure.length) {
+            runningGames[gameCode].currentRoundIndex = newRoundIndex;
+            runningGames[gameCode].roundEndDate = new Date(Date.now() + runningGames[gameCode].roundStructure[newRoundIndex].minutes * 60 * 1000)
+
+
+            socket.emit("newRound", newRoundIndex, runningGames[gameCode].roundEndDate.toUTCString());
+            getSocketIDsForGame(gameCode).forEach(socketId => {
+              socket.to(socketId).emit("newRound", newRoundIndex, runningGames[gameCode].roundEndDate.toUTCString());
+            })
+          }
+
         }
       }
     })

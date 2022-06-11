@@ -13,7 +13,7 @@ import { useAppDispatch } from './app/hooks';
 import { GameState, RoundInfo } from './shared/types';
 import { Playset } from './shared/playset';
 import { Card } from './shared/cards';
-import { setPlayerInfo, setState } from './features/GameSelector/gameSlice';
+import { setPlayerInfo, setRoundEndUTCString, setState } from './features/GameSelector/gameSlice';
 import { GameView } from './features/GameView/GameView';
 
 export interface ServerSocketInfo {
@@ -34,9 +34,6 @@ function App(props: AppProps) {
     let gameStartListener = (roundInfo: RoundInfo[], playset: Playset, myCard: Card) => {
       console.log("Game is starting", roundInfo, playset, myCard);
       dispatch(setState(GameState.BetweenRounds));
-
-      // play an intro animatic
-
       dispatch(setPlayerInfo({
         activePlayset: playset,
         card: myCard,
@@ -44,9 +41,17 @@ function App(props: AppProps) {
       }))
     };
 
+    let updateTimerListener = (roundEndUTCString: String) => {
+      console.log("got new round string", roundEndUTCString);
+      
+      dispatch(setRoundEndUTCString(roundEndUTCString))
+    }
+
     props.socketInfo.socket.on("gameStartSignal", gameStartListener)
+    props.socketInfo.socket.on("updateTimer", updateTimerListener)
     return () => {
       props.socketInfo.socket.off("gameStartSignal", gameStartListener)
+      props.socketInfo.socket.off("updateTimer", updateTimerListener)
     }
   })
 

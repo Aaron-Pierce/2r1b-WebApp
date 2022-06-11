@@ -29,7 +29,6 @@ function RoundCard(props: RoundCardProps) {
     
     return (
         <div className={styles.roundCard} key={2**props.minutes * 3**props.minutes * 5**props.index}>
-            <p>{JSON.stringify(props)}</p>
             <p>Round {props.index + 1}</p>
             <input type={"number"} value={props.minutes} onChange={e => {props.setMinutes(parseInt(e.target.value))}}></input>
             <br />

@@ -8,7 +8,8 @@ export interface GameInfo {
     code: string | null,
     state: GameState,
     isCreator: Boolean
-    playerInfo: PlayerInfo | null
+    playerInfo: PlayerInfo | null,
+    roundEndUTCString: String | null
 }
 
 export interface PlayerInfo {
@@ -21,7 +22,8 @@ const initialState: GameInfo = {
     code: null,
     state: GameState.WaitingOnPlayers,
     isCreator: false,
-    playerInfo: null
+    playerInfo: null,
+    roundEndUTCString: null
 };
 
 export const gameSlice = createSlice({
@@ -47,11 +49,14 @@ export const gameSlice = createSlice({
         },
         setPlayerInfo: (state, action: PayloadAction<PlayerInfo | null>) => {
             state.playerInfo = action.payload;
+        },
+        setRoundEndUTCString: (state, action: PayloadAction<String | null>) => {
+            state.roundEndUTCString = action.payload;
         }
     }
 });
 
-export const { setCode, setState, setIsCreator, setPlayerInfo } = gameSlice.actions;
+export const { setCode, setState, setIsCreator, setPlayerInfo, setRoundEndUTCString } = gameSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -60,6 +65,7 @@ export const selectCode = (state: RootState) => state.game.code;
 export const selectState = (state: RootState) => state.game.state;
 export const selectIsCreator = (state: RootState) => state.game.isCreator;
 export const selectPlayerInfo = (state: RootState) => state.game.playerInfo;
+export const selectRoundEndUTCString = (state: RootState) => state.game.roundEndUTCString;
 
 
 export default gameSlice.reducer;

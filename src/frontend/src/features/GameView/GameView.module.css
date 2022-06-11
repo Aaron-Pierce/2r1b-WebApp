@@ -17,12 +17,13 @@
     color: white;
     font-weight: bold;
     padding: 1em;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     box-sizing: border-box;
-    justify-content: space-between;
+    text-align: center;
 }
 
 #infoPanel{
-    background-color: red;
+    /* background-color: red; */
+    border-left: 2px solid black;
 }
