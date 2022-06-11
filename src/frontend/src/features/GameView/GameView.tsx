@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ServerSocketInfo } from "../../App";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { GameState } from "../../shared/types";
-import { selectCode, selectIsCreator, selectPlayerInfo, selectRoundEndUTCString, selectState, setRoundEndUTCString } from "../GameSelector/gameSlice";
+import { selectCode, selectIsCreator, selectPlayerInfo, selectRoundEndUTCString, selectRoundIndex, selectState, setRoundEndUTCString, setRoundIndex } from "../GameSelector/gameSlice";
 import { PlaysetComponent } from "../WaitingScreen/Playset/PlaysetComponent";
 
 
@@ -19,13 +19,14 @@ export function GameView(props: GameViewProps) {
     let playerInfo = useAppSelector(selectPlayerInfo);
     let isCreator = useAppSelector(selectIsCreator);
     let roundEndUTCString = useAppSelector(selectRoundEndUTCString);
+    let roundIndex = useAppSelector(selectRoundIndex);
 
     let [roundIsLive, setRoundIsLive] = useState(true);
 
     let dispatch = useAppDispatch();
 
     let [timerString, setTimerString] = useState("");
-    let [roundIndex, setRoundIndex] = useState(0);
+    // let [roundIndex, setRoundIndex] = useState(0);
 
     useEffect(() => {
         let timerLoop = setInterval(() => {
@@ -35,7 +36,9 @@ export function GameView(props: GameViewProps) {
                 if(secondUntilThen < 0){                    
                     setTimerString("0:00");
                     if(roundIsLive){
-                        navigator.vibrate([100, 100, 100, 100, 100, 100]);
+                        if(navigator.vibrate !== undefined){
+                            navigator.vibrate([100, 100, 100, 100, 100, 100]);
+                        }
                         setRoundIsLive(false);
                     }
                 } else {
@@ -50,7 +53,7 @@ export function GameView(props: GameViewProps) {
 
         let newRoundHandler = (newRoundIndex: number, roundEndUTCString: String) => {
             dispatch(setRoundEndUTCString(roundEndUTCString.toString()))
-            setRoundIndex(newRoundIndex);
+            dispatch(setRoundIndex(newRoundIndex));
             setRoundIsLive(true);
         }
 
@@ -64,6 +67,12 @@ export function GameView(props: GameViewProps) {
     function requestAdvanceRound(){
         if(gameCode){
             props.socketInfo.socket.emit("requestAdvanceRound", gameCode);
+        }
+    }
+
+    function requestEndGame(){
+        if(gameCode){
+            props.socketInfo.socket.emit("requestGameEnd", gameCode);
         }
     }
 
@@ -95,12 +104,25 @@ export function GameView(props: GameViewProps) {
 
             <div id={styles.infoPanel}>
                 <hr style={{marginTop: '5.3em'}}></hr>
-                <h1>{playerInfo.roundStructure[roundIndex].minutes} minute round | {playerInfo.roundStructure[roundIndex].numHostages} hostages</h1>
+                <h1>{playerInfo.roundStructure[roundIndex.valueOf()].minutes} minute round | {playerInfo.roundStructure[roundIndex.valueOf()].numHostages} hostages</h1>
                 {
                     isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && (
                         <button onClick={() => requestAdvanceRound()}>Advance Round</button>
                     )
                 }
+                {
+                    isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && roundIndex === (playerInfo.roundStructure.length - 1) && (
+                        <button onClick={() => requestEndGame()}>End Game</button>
+                    )
+                }
+
+                <div style={{margin: "0.2em", padding: '0.2em'}}>
+                    <PlaysetComponent isEditable={false} playset={playerInfo.activePlayset} groupCards={false}></PlaysetComponent>
+                </div>
+
+                <p>
+                    <b>{playerInfo.roundStructure.length} rounds:</b> {playerInfo.roundStructure.map((round, ind) => `${round.minutes} minute${round.minutes > 1 ? "s" : ''}, ${round.numHostages} hostage${round.numHostages > 1 ? "s" : ""} ${ind === roundIndex ? "(current)" : ""}`).join(" | ")}
+                </p>
             </div>
         </div>
     )

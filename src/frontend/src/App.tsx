@@ -13,7 +13,7 @@ import { useAppDispatch } from './app/hooks';
 import { GameState, RoundInfo } from './shared/types';
 import { Playset } from './shared/playset';
 import { Card } from './shared/cards';
-import { setPlayerInfo, setRoundEndUTCString, setState } from './features/GameSelector/gameSlice';
+import { setNamesList, setPlayerInfo, setRoundEndUTCString, setRoundIndex, setState } from './features/GameSelector/gameSlice';
 import { GameView } from './features/GameView/GameView';
 
 export interface ServerSocketInfo {
@@ -26,6 +26,11 @@ interface AppProps {
 }
 
 function App(props: AppProps) {
+
+  window.onerror = (err) => {
+    alert(err.toString());
+    alert(err.valueOf())
+  } 
 
   let dispatch = useAppDispatch();
 
@@ -47,11 +52,25 @@ function App(props: AppProps) {
       dispatch(setRoundEndUTCString(roundEndUTCString))
     }
 
+    let endGameListener = () => {
+      dispatch(setState(GameState.WaitingOnPlayers));
+      dispatch(setRoundIndex(0));
+      dispatch(setPlayerInfo(null));
+    }
+
+    let newNamesListListener = (namesList: String[]) => {
+      dispatch(setNamesList(namesList));
+    }
+
     props.socketInfo.socket.on("gameStartSignal", gameStartListener)
     props.socketInfo.socket.on("updateTimer", updateTimerListener)
+    props.socketInfo.socket.on("gameEnd", endGameListener)
+    props.socketInfo.socket.on("namesList", newNamesListListener)
     return () => {
       props.socketInfo.socket.off("gameStartSignal", gameStartListener)
       props.socketInfo.socket.off("updateTimer", updateTimerListener)
+      props.socketInfo.socket.off("gameEnd", endGameListener)
+      props.socketInfo.socket.off("namesList", newNamesListListener)
     }
   })
 

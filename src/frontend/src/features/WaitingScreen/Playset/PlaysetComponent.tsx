@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { getCardsFromPlayset } from "../../../shared/cards";
 import { numCardsInPlayset, Playset } from "../../../shared/playset";
 import { CardStack } from "../CardGroup/CardStack";
+import { PlaysetCard } from "../PlaysetCard/PlaysetCard";
 
 import styles from "./PlaysetComponent.module.css";
 
@@ -10,6 +12,7 @@ interface PlaysetComponentProps {
     removeCallback?: (indexToRemove: number) => void,
     hasUnsavedChanges?: Boolean,
     confirmPlaysetCallback?: () => void;
+    groupCards: Boolean
 }
 
 export function PlaysetComponent(props: PlaysetComponentProps) {
@@ -32,8 +35,12 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
                                 currentPlayset.map(card => <PlaysetCard key={card.cardId.toString()} card={card}></PlaysetCard>)
                             } */}
 
-                {
+                {props.groupCards && 
                     props.playset.cardGroups.map((group, ind) => <CardStack key={ind} group={group} playset={props.playset} removeCallback={() => props.removeCallback && props.removeCallback(ind)}></CardStack>)
+                }
+                {
+                    !props.groupCards &&
+                    getCardsFromPlayset(props.playset).map(card => <PlaysetCard card={card} key={card.cardId.toString()}></PlaysetCard>)
                 }
             </div>
             {

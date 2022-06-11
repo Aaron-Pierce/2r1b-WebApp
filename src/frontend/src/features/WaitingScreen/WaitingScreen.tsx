@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { GameState, RoundInfo } from "../../shared/types";
 import { ServerSocketInfo } from "../../App";
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { selectCode, selectIsCreator, selectState, setState } from "../GameSelector/gameSlice"
+import { selectCode, selectIsCreator, selectNamesList, selectState, setState } from "../GameSelector/gameSlice"
 
 import styles from "./WaitingScreen.module.css";
 import { Card, cardGroupFromMember, Cards } from "../../shared/cards";
@@ -23,6 +23,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let gameCode = useAppSelector(selectCode);
     let currentGameState = useAppSelector(selectState);
     let isGameCreator = useAppSelector(selectIsCreator);
+    let namesList = useAppSelector(selectNamesList);
     let dispatch = useAppDispatch();
 
     let [currentPlayset, setCurrentPlayset] = useState<Playset>({
@@ -30,8 +31,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
     });
     let [playsetHasUnsavedChanges, setPlaysetHasUnsavedChanges] = useState(false);
 
-
-    let [nameList, setNameList] = useState<String[]>([]);
 
     let [lastGameStateQueryTime, setLastGameStateQueryTime] = useState<number>(0);
 
@@ -87,18 +86,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
                 });
             }
 
-            props.socketInfo.socket.on("namesList", (list: String[]) => {
-                console.log("got names list", list);
-                setNameList(list);
-            });
-
-            props.socketInfo.socket.on("announceJoin", (name: String) => {
-                setNameList([...nameList, name]);
-            })
-            if (nameList.length === 0) {
-                props.socketInfo.socket.emit("getNamesList", gameCode);
-            }
-
             props.socketInfo.socket.on("newPlayset", (playset: Playset) => {
                 console.log("new playset: ", playset);
 
@@ -117,7 +104,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
             return () => {
                 props.socketInfo.socket.off("gameStateResponse");
                 props.socketInfo.socket.off("namesList");
-                props.socketInfo.socket.off("announceJoin");
                 props.socketInfo.socket.off("newPlayset");
                 props.socketInfo.socket.off("confirmNewRoundInfo");
             }
@@ -152,12 +138,12 @@ export function WaitingScreen(props: WaitingScreenProps) {
         <div id="waitingScreen">
             <h1>{gameCode}</h1>
             <div id="nameList">
-                <p>Players ({nameList.length}): {nameList.join(", ")}</p>
+                <p>Players ({namesList.length}): {namesList.join(", ")}</p>
             </div>
             <hr />
 
             {isGameCreator && (
-                <RoundDesigner playerCount={nameList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
+                <RoundDesigner playerCount={namesList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
             )}
 
             {isGameCreator && (
@@ -171,7 +157,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
             {isGameCreator ? (
                 !isPlaysetViewCollapsed && (
                     <div id="playsetDesigner">
-                        <PlaysetComponent isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
+                        <PlaysetComponent groupCards={true} isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
                         <div id="cardInventory">
                             {
                                 Cards.map(card => (
@@ -182,7 +168,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
                     </div>
                 )
             ) : (
-                <PlaysetComponent isEditable={false} playset={currentPlayset}></PlaysetComponent>
+                <PlaysetComponent isEditable={false} playset={currentPlayset} groupCards={true}></PlaysetComponent>
             )}
 
             {

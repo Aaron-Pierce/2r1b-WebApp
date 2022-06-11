@@ -7,13 +7,13 @@ export interface ServerToClientEvents {
     noSuchGame: () => void;
     gameStateResponse: (gameState: GameState) => void;
     namesList: (nameList: String[]) => void;
-    announceJoin: (name: String) => void;
     confirmGameCreation: (success: boolean, name: string) => void;
     newPlayset: (playset: Playset) => void;
     confirmNewRoundInfo: (hasError: boolean, message: string) => void;
     gameStartSignal: (roundInfo: RoundInfo[], playset: Playset, myCard: Card) => void;
     updateTimer: (roundEndUTCString: String) => void;
     newRound: (roundIndex: number, roundEndUTCString: String) => void;
+    gameEnd: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -25,6 +25,7 @@ export interface ClientToServerEvents {
     setRoundInfo: (gameCode: string, roundInfo: RoundInfo[]) => void;
     requestStartGame: (gameCode: string) => void;
     requestAdvanceRound: (gameCode: string) => void;
+    requestGameEnd: (gameCode: string) => void;
 }
 
 export interface InterServerEvents {

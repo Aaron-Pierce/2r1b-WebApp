@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "../../../shared/cards";
 import styles from "./PlayerCard.module.css";
 
@@ -10,11 +10,10 @@ export function PlayerCard(props: PlayerCardProps) {
 
     let [cardVisibility, setCardVisibility] = useState<"none" | "colorshare" | "cardshare" | "always">("none");
 
+
     function pressRevealColor() {
         setCardVisibility("colorshare");
     }
-
-
 
     function pressRevealCard() {
         setCardVisibility("cardshare");
@@ -29,10 +28,10 @@ export function PlayerCard(props: PlayerCardProps) {
     return <div className={styles.playerCardWrapper}>
         <div className={styles.cardWrapper}>
             <img src={`cardImages/${props.card.cardId}.jpg`} className={
-                `${cardVisibility !== "none" ? "" : styles.hidden} ${cardVisibility === "colorshare" ? styles.colorShare : ""}`
+                `${styles.primaryCardImg} ${cardVisibility !== "none" ? styles.showing : styles.hidden} ${cardVisibility === "colorshare" ? styles.colorShare : ""}`
             }></img>
             <img src={`cardImages/cardback.jpg`} className={
-                `${cardVisibility === "none" ?  "" : styles.hidden}`
+                `${styles.cardBackImg} ${cardVisibility === "none" ?  styles.showing : styles.hidden}`
             }></img>
         </div>
         <div className={styles.controlsWrapper}>
