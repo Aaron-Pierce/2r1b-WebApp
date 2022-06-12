@@ -1,0 +1,48 @@
+#gameSelectorSection {
+    width: 100%;
+    height: 100%;
+    padding: 1em;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    /* background-color: #3a55a4; */
+
+    /* font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; */
+    /* color: white; */
+
+    justify-content: space-evenly;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+#joinSection{
+    display: block;
+    text-align: center;
+    /* background-color: #541414; */
+}
+
+.input {
+    padding: 1em;
+}
+
+.btn{
+    padding: 0.25em;
+    font-size: 1em;
+    color: black
+}
+
+#illustrationWrapper{
+    width: 100%;
+    height: 100%;
+    /* max-width: 100vw; */
+    /* max-height: 100vh; */
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+#illustrationWrapper svg {
+    width: 100%;
+    height: 100%;
+}

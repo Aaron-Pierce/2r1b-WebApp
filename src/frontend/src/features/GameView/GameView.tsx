@@ -77,6 +77,11 @@ export function GameView(props: GameViewProps) {
     }
 
     if (playerInfo === null) return <></>;
+    if(playerInfo.card === null || playerInfo.card === undefined){
+        return (
+            <p>You weren't dealt a card - this probably means you joined while the game was running. You will be dealt in for the next game.</p>
+        )
+    }
     if (currentState !== GameState.InRound && currentState !== GameState.RoundStart) return <></>;
     return (
         <div id={styles.gameView}>

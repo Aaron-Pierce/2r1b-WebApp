@@ -40,7 +40,7 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
                 }
                 {
                     !props.groupCards &&
-                    getCardsFromPlayset(props.playset).map(card => <PlaysetCard card={card} key={card.cardId.toString()}></PlaysetCard>)
+                    getCardsFromPlayset(props.playset).map((card, ind) => <PlaysetCard card={card} key={card.cardId.toString() + ind}></PlaysetCard>)
                 }
             </div>
             {

@@ -103,7 +103,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
             
             return () => {
                 props.socketInfo.socket.off("gameStateResponse");
-                props.socketInfo.socket.off("namesList");
                 props.socketInfo.socket.off("newPlayset");
                 props.socketInfo.socket.off("confirmNewRoundInfo");
             }
@@ -135,7 +134,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
     if (currentGameState !== GameState.WaitingOnPlayers) return <></>;
 
     return (
-        <div id="waitingScreen">
+        <div id={styles.waitingScreen}>
             <h1>{gameCode}</h1>
             <div id="nameList">
                 <p>Players ({namesList.length}): {namesList.join(", ")}</p>

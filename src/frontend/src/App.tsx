@@ -36,6 +36,8 @@ function App(props: AppProps) {
 
   useEffect(() => {
 
+    console.log("attaching listeners");
+    
     let gameStartListener = (roundInfo: RoundInfo[], playset: Playset, myCard: Card) => {
       console.log("Game is starting", roundInfo, playset, myCard);
       dispatch(setState(GameState.BetweenRounds));
@@ -59,6 +61,10 @@ function App(props: AppProps) {
     }
 
     let newNamesListListener = (namesList: String[]) => {
+      console.log("namesList");
+      
+      console.log("dispatched new names list", namesList);
+      
       dispatch(setNamesList(namesList));
     }
 
@@ -71,6 +77,8 @@ function App(props: AppProps) {
       props.socketInfo.socket.off("updateTimer", updateTimerListener)
       props.socketInfo.socket.off("gameEnd", endGameListener)
       props.socketInfo.socket.off("namesList", newNamesListListener)
+      console.log("Cleaning up app");
+      
     }
   })
 
