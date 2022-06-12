@@ -48,9 +48,10 @@
 .holdButton {
     border: none;   
     font-size: 2em;
-    font-weight: lighter;
+    /* font-weight: lighter; */
     border-left: 1px solid black;
-    border-right: 1px solid black;
     color: black;
+    background-color: white;
+    color: #424244;
 }
 

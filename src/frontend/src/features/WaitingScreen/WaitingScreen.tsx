@@ -135,11 +135,10 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
     return (
         <div id={styles.waitingScreen}>
-            <h1>{gameCode}</h1>
+            <h1><span style={{color: `rgba(0, 0, 0, 0.7)`, fontWeight: 'lighter'}}>Game Code:</span> {gameCode}</h1>
             <div id="nameList">
                 <p>Players ({namesList.length}): {namesList.join(", ")}</p>
             </div>
-            <hr />
 
             {isGameCreator && (
                 <RoundDesigner playerCount={namesList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
