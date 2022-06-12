@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-frontend": "cd src/frontend && npm run build",
+    "build-frontend-linux": "cd src/frontend && npm run build-linux",
     "build-server": "npx tsc --outDir build/",
     "build": "npm run build-frontend && npm run build-server"
   },
