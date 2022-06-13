@@ -15,7 +15,7 @@ const httpServer = process.env.DEV ? createServer(app) : createHttpsServer({
   key: readFileSync("/etc/letsencrypt/live/2r1b.apierce.dev/privkey.pem"),
   cert: readFileSync("/etc/letsencrypt/live/2r1b.apierce.dev/cert.pem")
 }, app);
-const port = 3000;
+const port = process.env.DEV ? 3000 : 443;
 
 app.use(express.static(path.join(__dirname, "/../../build/frontend/")))
 
