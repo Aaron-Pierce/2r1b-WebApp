@@ -4,6 +4,7 @@ import path from 'path';
 import { Server } from "socket.io";
 import { createServer } from "http";
 import {createServer as createHttpsServer} from "https";
+import { readFileSync } from "fs";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
 import { GameState, RoundInfo } from '../shared/types';
 import { Card, getCardsFromPlayset, verifyPairs } from '../shared/cards';
@@ -11,8 +12,8 @@ import { Playset } from '../shared/playset';
 
 const app = express();
 const httpServer = process.env.DEV ? createServer(app) : createHttpsServer({
-  key: "/etc/letsencrypt/live/2r1b.apierce.dev/privkey.pem",
-  cert: "/etc/letsencrypt/live/2r1b.apierce.dev/cert.pem"
+  key: readFileSync("/etc/letsencrypt/live/2r1b.apierce.dev/privkey.pem"),
+  cert: readFileSync("/etc/letsencrypt/live/2r1b.apierce.dev/cert.pem")
 }, app);
 const port = 3000;
 
