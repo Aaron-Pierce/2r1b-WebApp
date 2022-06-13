@@ -3,13 +3,17 @@ import path from 'path';
 
 import { Server } from "socket.io";
 import { createServer } from "http";
+import {createServer as createHttpsServer} from "https";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '../shared/SocketIOEvents';
 import { GameState, RoundInfo } from '../shared/types';
 import { Card, getCardsFromPlayset, verifyPairs } from '../shared/cards';
 import { Playset } from '../shared/playset';
 
 const app = express();
-const httpServer = createServer(app);
+const httpServer = process.env.DEV ? createServer(app) : createHttpsServer({
+  key: "/etc/letsencrypt/live/2r1b.apierce.dev/privkey.pem",
+  cert: "/etc/letsencrypt/live/2r1b.apierce.dev/cert.pem"
+}, app);
 const port = 3000;
 
 app.use(express.static(path.join(__dirname, "/../../build/frontend/")))
