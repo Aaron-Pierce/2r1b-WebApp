@@ -78,7 +78,7 @@ export function GameSelector(props: GameSelectorProps) {
         <div id={styles.gameSelectorSection}>
 
             <div id={styles.joinSection}>
-                <h1>Two Rooms and a Boom V1.1</h1>
+                <h1>Two Rooms and a Boom V1.2</h1>
                 <h2>Join a Game</h2>
                 <form onSubmit={e => e.preventDefault()}>
                     <input placeholder="Your Name" id="yourNameInput" name="name" className={styles.input}></input>

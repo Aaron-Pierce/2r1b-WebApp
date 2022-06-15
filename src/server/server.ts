@@ -58,6 +58,13 @@ function resetGame(gameCode: string) {
   }
 }
 
+function deleteGame(gameCode: string){
+  if(runningGames[gameCode]){
+    delete runningGames[gameCode];
+  }
+}
+
+
 httpServer.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 
@@ -117,6 +124,8 @@ httpServer.listen(port, () => {
       let gameCode = socketIdToGameMap[socket.id];
       let playerId = socketIdToPlayerIDMap[socket.id];
       delete socketIdToPlayerIDMap[socket.id];
+      delete socketIdToGameMap[socket.id];
+      delete playerIdNames[playerId];
 
       if (runningGames[gameCode]) {
         console.log("Before disconnect", runningGames[gameCode].players);
@@ -136,6 +145,10 @@ httpServer.listen(port, () => {
           console.log("emitting namesList ", nameList, " to socketid", socketId, " which we think is ", playerIdNames[socketIdToPlayerIDMap[socketId]]);
           io.to(socketId).emit("namesList", nameList);
         });
+
+        if(runningGames[gameCode].players.size === 0){
+          deleteGame(gameCode);
+        }
       }
 
       
@@ -276,14 +289,7 @@ httpServer.listen(port, () => {
             io.to(socketId).emit("gameStartSignal", game.roundStructure, game.playset, game.playerCardMap[socketIdToPlayerIDMap[socketId]]);
           }
 
-          // leave some time for the opening cutscene
-          setTimeout(() => {
-            if (runningGames[gameCode].state === GameState.RoundStart) {
-              runningGames[gameCode].state = GameState.InRound;
-              console.log("Game is now fully running with ", runningGames[gameCode]);
-              console.log(JSON.stringify(runningGames[gameCode]));
-            }
-          }, 1000);
+          runningGames[gameCode].state = GameState.InRound;
         }
       }
     })
