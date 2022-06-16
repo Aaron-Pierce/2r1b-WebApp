@@ -1,0 +1,32 @@
+.roundInfoDisplay{
+    width: 100%;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: row;
+    overflow-x: scroll;
+
+}
+
+.roundCard:not(:first-of-type){
+    border-left: 2px solid black;
+}
+
+.roundCard {
+    text-align: left;
+    width: 100%;
+    padding: 1em;
+    min-width: 10em;
+}
+.roundCard p {
+    margin: 0;
+}
+
+.highlighted{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.roundInfoDisplayWrapper{
+    /* border: 2px solid black; */
+    padding: 1em;
+    padding-top: 0em;
+}

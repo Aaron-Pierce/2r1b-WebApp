@@ -3,7 +3,8 @@ import { Card } from "../../../shared/cards";
 import styles from "./PlayerCard.module.css";
 
 interface PlayerCardProps {
-    card: Card
+    card: Card,
+    publicRevealed: Boolean
 }
 
 export function PlayerCard(props: PlayerCardProps) {
@@ -28,10 +29,10 @@ export function PlayerCard(props: PlayerCardProps) {
     return <div className={styles.playerCardWrapper}>
         <div className={styles.cardWrapper}>
             <img src={`cardImages/${props.card.cardId}.jpg`} className={
-                `${styles.primaryCardImg} ${cardVisibility !== "none" ? styles.showing : styles.hidden} ${cardVisibility === "colorshare" ? styles.colorShare : ""}`
+                `${styles.primaryCardImg} ${cardVisibility !== "none" || props.publicRevealed ? styles.showing : styles.hidden} ${cardVisibility === "colorshare" && !props.publicRevealed ? styles.colorShare : ""}`
             }></img>
             <img src={`cardImages/cardback.jpg`} className={
-                `${styles.cardBackImg} ${cardVisibility === "none" ?  styles.showing : styles.hidden}`
+                `${styles.cardBackImg} ${cardVisibility === "none" && !props.publicRevealed ?  styles.showing : styles.hidden}`
             }></img>
         </div>
         <div className={styles.controlsWrapper}>

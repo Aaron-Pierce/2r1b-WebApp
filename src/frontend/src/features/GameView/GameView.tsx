@@ -8,6 +8,8 @@ import { PlaysetComponent } from "../WaitingScreen/Playset/PlaysetComponent";
 
 import styles from "./GameView.module.css";
 import { PlayerCard } from "./PlayerCard/PlayerCard";
+import { RoundInfoDisplay } from "./RoundInfo/RoundInfoDisplay";
+
 
 interface GameViewProps {
     socketInfo: ServerSocketInfo;
@@ -21,6 +23,8 @@ export function GameView(props: GameViewProps) {
     let roundEndUTCString = useAppSelector(selectRoundEndUTCString);
     let roundIndex = useAppSelector(selectRoundIndex);
 
+    let [publicRevealed, setPublicRevealed] = useState(false);
+
     let [roundIsLive, setRoundIsLive] = useState(true);
 
     let dispatch = useAppDispatch();
@@ -30,13 +34,13 @@ export function GameView(props: GameViewProps) {
 
     useEffect(() => {
         let timerLoop = setInterval(() => {
-            if(roundEndUTCString){
+            if (roundEndUTCString) {
                 let roundEndDate = new Date(roundEndUTCString.toString());
                 let secondUntilThen = Math.floor((roundEndDate.getTime() - Date.now()) / 1000);
-                if(secondUntilThen < 0){                    
+                if (secondUntilThen < 0) {
                     setTimerString("0:00");
-                    if(roundIsLive){
-                        if(navigator.vibrate !== undefined){
+                    if (roundIsLive) {
+                        if (navigator.vibrate !== undefined) {
                             navigator.vibrate([100, 100, 100, 100, 100, 100]);
                         }
                         setRoundIsLive(false);
@@ -64,20 +68,20 @@ export function GameView(props: GameViewProps) {
         }
     })
 
-    function requestAdvanceRound(){
-        if(gameCode){
+    function requestAdvanceRound() {
+        if (gameCode) {
             props.socketInfo.socket.emit("requestAdvanceRound", gameCode);
         }
     }
 
-    function requestEndGame(){
-        if(gameCode){
+    function requestEndGame() {
+        if (gameCode) {
             props.socketInfo.socket.emit("requestGameEnd", gameCode);
         }
     }
-
+    
     if (playerInfo === null) return <></>;
-    if(playerInfo.card === null || playerInfo.card === undefined){
+    if (playerInfo.card === null || playerInfo.card === undefined) {
         return (
             <p>You weren't dealt a card - this probably means you joined while the game was running. You will be dealt in for the next game.</p>
         )
@@ -87,9 +91,9 @@ export function GameView(props: GameViewProps) {
         <div id={styles.gameView}>
             <div id={styles.cardPanel}>
                 <div id={styles.floatingHeader}>
-                    <div style={{textAlign: 'left'}}>
+                    <div style={{ textAlign: 'left' }}>
                         {/* left */}
-                    <p>{timerString}</p>
+                        <p>{timerString}</p>
                     </div>
                     <div>
                         {/* middle */}
@@ -99,7 +103,7 @@ export function GameView(props: GameViewProps) {
                         {/* right */}
                     </div>
                 </div>
-                <PlayerCard card={playerInfo.card}></PlayerCard>
+                <PlayerCard card={playerInfo.card} publicRevealed={publicRevealed}></PlayerCard>
                 <div id={styles.layout}>
                     <div>
                     </div>
@@ -107,9 +111,9 @@ export function GameView(props: GameViewProps) {
                 </div>
             </div>
 
-            <div id={styles.infoPanel}>
-                <hr style={{marginTop: '5.3em'}}></hr>
-                <h1>{playerInfo.roundStructure[roundIndex.valueOf()].minutes} minute round | {playerInfo.roundStructure[roundIndex.valueOf()].numHostages} hostages</h1>
+            <div id={styles.infoPanel} className={styles.removeH1Margin}>
+                <hr style={{ marginTop: '5.3em' }}></hr>
+
                 {
                     isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && (
                         <button onClick={() => requestAdvanceRound()}>Advance Round</button>
@@ -121,13 +125,20 @@ export function GameView(props: GameViewProps) {
                     )
                 }
 
-                <div style={{margin: "0.2em", padding: '0.2em'}}>
-                    <PlaysetComponent isEditable={false} playset={playerInfo.activePlayset} groupCards={false}></PlaysetComponent>
+                <div style={{marginTop: "0.2em"}}>
+                    <RoundInfoDisplay roundStructure={playerInfo.roundStructure} activeRoundIndex={roundIndex}></RoundInfoDisplay>
                 </div>
 
-                <p>
-                    <b>{playerInfo.roundStructure.length} rounds:</b> {playerInfo.roundStructure.map((round, ind) => `${round.minutes} minute${round.minutes > 1 ? "s" : ''}, ${round.numHostages} hostage${round.numHostages > 1 ? "s" : ""} ${ind === roundIndex ? "(current)" : ""}`).join(" | ")}
-                </p>
+                <div style={{}}>
+                    <PlaysetComponent style={{paddingTop: 0}} isEditable={false} playset={playerInfo.activePlayset} groupCards={false} showBorder={false}></PlaysetComponent>
+                </div>
+
+                <hr></hr>
+                <div style={{fontSize: "1.25em"}}>
+                    <input type={"checkbox"} id="publicRevealCheckbox" style={{transform: "scale(1.5)"}} checked={publicRevealed} onChange={() => setPublicRevealed(!publicRevealed)}></input>
+                    <label style={{marginLeft: "0.25em"}} htmlFor="publicRevealCheckbox">Always show card? (public reveal)</label>
+                </div>
+
             </div>
         </div>
     )

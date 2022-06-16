@@ -1,9 +1,12 @@
 #playsetWrapper {
-    border: 2px solid black;
     background-color: white;
     /* position: sticky;  */
     top: 0px;
     padding: 1em;
+}
+
+.border{
+    border: 2px solid black;
 }
 
 #playsetRow {

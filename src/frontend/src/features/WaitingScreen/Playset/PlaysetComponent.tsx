@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { CSSProperties, useState } from "react";
 import { getCardsFromPlayset } from "../../../shared/cards";
 import { numCardsInPlayset, Playset } from "../../../shared/playset";
 import { CardStack } from "../CardGroup/CardStack";
@@ -12,7 +12,9 @@ interface PlaysetComponentProps {
     removeCallback?: (indexToRemove: number) => void,
     hasUnsavedChanges?: Boolean,
     confirmPlaysetCallback?: () => void;
-    groupCards: Boolean
+    groupCards: Boolean,
+    showBorder?: Boolean,
+    style?: CSSProperties
 }
 
 export function PlaysetComponent(props: PlaysetComponentProps) {
@@ -28,7 +30,7 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
     
 
     return (
-        <div id={styles.playsetWrapper} className={`${props.hasUnsavedChanges && styles.playsetUnsaved} ${isSticky && styles.sticky}`}>
+        <div style={props.style} id={styles.playsetWrapper} className={`${props.hasUnsavedChanges && styles.playsetUnsaved} ${isSticky && styles.sticky} ${props.showBorder !== false && styles.border}`}>
             <h1>Current Playset ({numCardsInPlayset(props.playset)})</h1>
             <div id={styles.playsetRow}>
                 {/* {

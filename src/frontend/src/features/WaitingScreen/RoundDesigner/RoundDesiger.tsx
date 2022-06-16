@@ -28,13 +28,13 @@ function RoundCard(props: RoundCardProps) {
     console.log("Creating roundCard with ", props);
     
     return (
-        <div className={styles.roundCard} key={2**props.minutes * 3**props.minutes * 5**props.index}>
+        <div className={styles.roundCard} key={props.index}>
             <p>Round {props.index + 1}</p>
-            <input type={"number"} value={props.minutes} onChange={e => {props.setMinutes(parseInt(e.target.value))}}></input>
+            <input type={"number"} value={props.minutes || ""} onChange={e => {props.setMinutes(parseInt(e.target.value))}}></input>
             <br />
             <label>Length in minutes</label>
             <br />
-            <input type={"number"} value={props.hostages}  onChange={e => {props.setNumHostages(parseInt(e.target.value))}}></input>
+            <input type={"number"} value={props.hostages || ""}  onChange={e => {props.setNumHostages(parseInt(e.target.value))}}></input>
             <br />
             <label>Num hostages</label>
         </div>
@@ -76,7 +76,7 @@ export function RoundDesigner(props: RoundDesigerProps) {
                     })()
                 }
                 {                    
-                    currentRoundSettings.map((roundInfo, ind) => <RoundCard minutes={roundInfo.minutes} hostages={roundInfo.numHostages} key={(2**roundInfo.minutes) * (3**roundInfo.numHostages) * (5**ind)} index={ind} setMinutes={(min) => updateRound(ind, min, roundInfo.numHostages)} setNumHostages={(numHostages) => updateRound(ind, roundInfo.minutes, numHostages)}></RoundCard>)
+                    currentRoundSettings.map((roundInfo, ind) => <RoundCard minutes={roundInfo.minutes} hostages={roundInfo.numHostages} key={ind} index={ind} setMinutes={(min) => updateRound(ind, min, roundInfo.numHostages)} setNumHostages={(numHostages) => updateRound(ind, roundInfo.minutes, numHostages)}></RoundCard>)
                 }
                 {
                     currentRoundSettings.length === 0 && (

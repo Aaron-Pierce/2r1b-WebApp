@@ -22,6 +22,12 @@ let socketInfoBundle = {
   userid: userId
 }
 
+
+window.onerror = (err) => {
+  alert(err.toString());
+  alert(err.valueOf())
+} 
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>

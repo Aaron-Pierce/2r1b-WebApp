@@ -26,12 +26,6 @@ interface AppProps {
 }
 
 function App(props: AppProps) {
-
-  window.onerror = (err) => {
-    alert(err.toString());
-    alert(err.valueOf())
-  } 
-
   let dispatch = useAppDispatch();
 
   useEffect(() => {
