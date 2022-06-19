@@ -15,6 +15,10 @@
     align-items: center;
 }
 
+#gameSelectorSection div {
+    
+}
+
 #joinSection{
     display: block;
     text-align: center;
@@ -57,4 +61,21 @@
 
 #rulebookSection{
 
+}
+
+.deemph{
+    color: rgba(0, 0, 0, 0.7);
+}
+
+a.deemph{
+    color: rgba(0, 0, 0, 0.7);
+}
+
+
+a.deemph:visited{
+    color: rgba(0, 0, 0, 0.7);
+}
+
+form input{
+    margin: 0.2em;
 }

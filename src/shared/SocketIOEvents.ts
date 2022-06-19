@@ -26,6 +26,7 @@ export interface ClientToServerEvents {
     requestStartGame: (gameCode: string) => void;
     requestAdvanceRound: (gameCode: string) => void;
     requestGameEnd: (gameCode: string) => void;
+    getPlayset: (gameCode: string) => void,
 }
 
 export interface InterServerEvents {

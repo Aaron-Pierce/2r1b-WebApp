@@ -31,3 +31,11 @@
 .playsetUnsaved{
     background-color: rgb(255, 200, 100)!important;
 }
+
+#controlRow{
+    margin-top: 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}

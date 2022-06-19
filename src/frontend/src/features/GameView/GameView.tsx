@@ -115,7 +115,7 @@ export function GameView(props: GameViewProps) {
                 <hr style={{ marginTop: '5.3em' }}></hr>
 
                 {
-                    isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && (
+                    isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && roundIndex !== (playerInfo.roundStructure.length - 1) && (
                         <button onClick={() => requestAdvanceRound()}>Advance Round</button>
                     )
                 }

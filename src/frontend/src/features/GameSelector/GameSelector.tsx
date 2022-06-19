@@ -77,14 +77,14 @@ export function GameSelector(props: GameSelectorProps) {
     return (
         <div id={styles.gameSelectorSection}>
 
+            <div className={styles.noMargins}>
+                <p className={styles.deemph}>An digital adaptation of...</p>
+                <h1>Two Rooms and a Boom</h1>
+                <p className={styles.deemph}>by <a className={styles.deemph} href="https://www.tuesdayknightgames.com/tworoomsandaboom">Tuesday Knight Games</a>, adapted by <a className={styles.deemph} href="https://github.com/Aaron-Pierce">Aaron Pierce</a></p>
+            </div>
+
             <div id={styles.joinSection}>
-                <div className={styles.noMargins}>
-                    <p>An digital adaptation of...</p>
-                    <h1>Two Rooms and a Boom</h1>
-                    <p>by <a href="https://www.tuesdayknightgames.com/tworoomsandaboom">Tuesday Knight Games</a>, adapted by <a href="https://github.com/Aaron-Pierce">Aaron Pierce</a></p>
-                    <p>Version 1.2</p>
-                </div>
-                <h2>Join a Game</h2>
+                <h2 style={{ marginBottom: "0.2em" }}>Join a Game</h2>
                 <form onSubmit={e => e.preventDefault()}>
                     <input placeholder="Your Name" id="yourNameInput" name="name" className={styles.input}></input>
                     <br />
@@ -94,10 +94,12 @@ export function GameSelector(props: GameSelectorProps) {
                 </form>
             </div>
             <div id="createGame">
-                <h2>Create a Game</h2>
-                <input id="gameId" placeholder="gameId" onKeyDown={(evt) => evt.key === "Enter" ? createGame() : 0}></input>
-                <br />
-                <button onClick={createGame} className={styles.btn}>Create</button>
+                <h2 style={{ marginBottom: "0.2em" }}>Create a Game</h2>
+                <form onSubmit={e => e.preventDefault()}>
+                    <input id="gameId" placeholder="gameId" onKeyDown={(evt) => evt.key === "Enter" ? createGame() : 0}></input>
+                    <br />
+                    <button onClick={createGame} className={styles.btn}>Create</button>
+                </form>
                 <p id="successIndicator"></p>
             </div>
 

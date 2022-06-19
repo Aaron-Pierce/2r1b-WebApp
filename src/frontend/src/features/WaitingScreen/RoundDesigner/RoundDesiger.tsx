@@ -18,6 +18,7 @@ interface RoundCardProps {
     setMinutes: (minutes: number) => void,
     setNumHostages: (hostages: number) => void,
     index: number,
+    remove: (index: number) => void,
 }
 
 function RoundCard(props: RoundCardProps) {
@@ -37,6 +38,8 @@ function RoundCard(props: RoundCardProps) {
             <input type={"number"} value={props.hostages || ""}  onChange={e => {props.setNumHostages(parseInt(e.target.value))}}></input>
             <br />
             <label>Num hostages</label>
+            <br/>
+            <button style={{marginTop: "0.2em"}} onClick={() => props.remove(props.index)}>Remove</button>
         </div>
     )
 }
@@ -63,6 +66,10 @@ export function RoundDesigner(props: RoundDesigerProps) {
         console.log(currentRoundSettings);   
     }
 
+    function removeRound(index: number){
+        setCurrentRoundSettings(currentRoundSettings.filter((el, ind) => ind !== index));
+    }
+
     console.log("rendering roundDesigner");
     
 
@@ -76,7 +83,7 @@ export function RoundDesigner(props: RoundDesigerProps) {
                     })()
                 }
                 {                    
-                    currentRoundSettings.map((roundInfo, ind) => <RoundCard minutes={roundInfo.minutes} hostages={roundInfo.numHostages} key={ind} index={ind} setMinutes={(min) => updateRound(ind, min, roundInfo.numHostages)} setNumHostages={(numHostages) => updateRound(ind, roundInfo.minutes, numHostages)}></RoundCard>)
+                    currentRoundSettings.map((roundInfo, ind) => <RoundCard minutes={roundInfo.minutes} hostages={roundInfo.numHostages} key={ind} index={ind} setMinutes={(min) => updateRound(ind, min, roundInfo.numHostages)} setNumHostages={(numHostages) => updateRound(ind, roundInfo.minutes, numHostages)} remove={(ind) => removeRound(ind)}></RoundCard>)
                 }
                 {
                     currentRoundSettings.length === 0 && (

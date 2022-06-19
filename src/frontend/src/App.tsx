@@ -74,7 +74,7 @@ function App(props: AppProps) {
       console.log("Cleaning up app");
       
     }
-  })
+  }, []);
 
 
   return (

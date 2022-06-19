@@ -21,13 +21,24 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
 
     let [isSticky, setIsSticky] = useState(true);
 
-    if(props.isEditable){
-        if(props.removeCallback === undefined) throw "Editable PlaysetComponent must have a removeCallback"
-        if(props.hasUnsavedChanges === undefined) throw "Editable PlaysetComponent must have a hasUnsavedChanges prop set"
-        if(props.confirmPlaysetCallback === undefined) throw "Editable PlaysetComponent must have a confirmPlaysetCallback"
+    if (props.isEditable) {
+        if (props.removeCallback === undefined) throw "Editable PlaysetComponent must have a removeCallback"
+        if (props.hasUnsavedChanges === undefined) throw "Editable PlaysetComponent must have a hasUnsavedChanges prop set"
+        if (props.confirmPlaysetCallback === undefined) throw "Editable PlaysetComponent must have a confirmPlaysetCallback"
     }
 
-    
+
+    function savePlaysetLocally(){
+        let playsetName = (document.getElementById("playsetNameInput") as HTMLInputElement).value;
+        let savedPlaysets = JSON.parse(localStorage.getItem("savedPlaysets") || "[]");
+        savedPlaysets.push({
+            name: playsetName,
+            playset: props.playset
+        });
+        localStorage.setItem("savedPlaysets", JSON.stringify(savedPlaysets));
+        (document.getElementById("playsetNameInput") as HTMLInputElement).value = "";
+    }
+
 
     return (
         <div style={props.style} id={styles.playsetWrapper} className={`${props.hasUnsavedChanges && styles.playsetUnsaved} ${isSticky && styles.sticky} ${props.showBorder !== false && styles.border}`}>
@@ -37,7 +48,7 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
                                 currentPlayset.map(card => <PlaysetCard key={card.cardId.toString()} card={card}></PlaysetCard>)
                             } */}
 
-                {props.groupCards && 
+                {props.groupCards &&
                     props.playset.cardGroups.map((group, ind) => <CardStack key={ind} group={group} playset={props.playset} removeCallback={() => props.removeCallback && props.removeCallback(ind)}></CardStack>)
                 }
                 {
@@ -47,13 +58,20 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
             </div>
             {
                 props.isEditable && (
-                    <div style={{display: 'inline-block'}}>
-                        <button onClick={props.confirmPlaysetCallback}>Set Playset</button>
-                        
-                        <span style={{verticalAlign: 'middle'}}>
-                            <input type={"checkbox"} checked={isSticky} onChange={() => setIsSticky(!isSticky)}></input>
-                            <label>Sticky</label>
-                        </span>
+                    <div style={{ display: 'inline-block', width: "100%" }}>
+
+                        <div>
+                            <input placeholder="Playset Name" id="playsetNameInput"></input>
+                            <button onClick={() => savePlaysetLocally()}>Save for later</button>
+                        </div>
+                        <div id={styles.controlRow}>
+                            <button onClick={props.confirmPlaysetCallback}>Set Playset</button>
+                            <div style={{ verticalAlign: 'middle' }}>
+                                <input type={"checkbox"} checked={isSticky} onChange={() => setIsSticky(!isSticky)}></input>
+                                <label>Sticky</label>
+                            </div>
+                        </div>
+
                     </div>
                 )
             }

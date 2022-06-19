@@ -58,6 +58,10 @@ function resetGame(gameCode: string) {
     runningGames[gameCode].buriedCard = null;
     runningGames[gameCode].currentRoundIndex = 0;
     runningGames[gameCode].disconnectedPlayers = new Set();
+    runningGames[gameCode].playset = {
+      cardGroups: []
+    },
+    runningGames[gameCode].roundStructure = []
   }
 }
 
@@ -197,6 +201,12 @@ httpServer.listen(port, () => {
         runningGames[gameCode].playset = playset;
         console.log(getSocketIDsForGame(gameCode).map(e => socketIdToPlayerIDMap[e]));
         io.to(gameCode).emit("newPlayset", playset);
+      }
+    })
+    
+    socket.on("getPlayset", (gameCode) => {
+      if (runningGames[gameCode]) {
+        socket.emit("newPlayset", runningGames[gameCode].playset)
       }
     })
 

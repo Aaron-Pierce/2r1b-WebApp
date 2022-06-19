@@ -5,17 +5,22 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectCode, selectIsCreator, selectNamesList, selectState, setState } from "../GameSelector/gameSlice"
 
 import styles from "./WaitingScreen.module.css";
-import { Card, cardGroupFromMember, Cards } from "../../shared/cards";
+import { Card, cardGroupFromMember, Cards, getCardsFromPlayset } from "../../shared/cards";
 import { PlaysetCard } from "./PlaysetCard/PlaysetCard";
 import { InventoryCard } from "./InventoryCard/InventoryCard";
 import { CardStack } from "./CardGroup/CardStack";
-import { numCardsInPlayset, Playset } from "../../shared/playset";
+import { numCardsInPlayset, Playset, cardGroupEqual } from "../../shared/playset";
 import { PlaysetComponent } from "./Playset/PlaysetComponent";
 import { RoundDesigner } from "./RoundDesigner/RoundDesiger";
 
 
 export interface WaitingScreenProps {
     socketInfo: ServerSocketInfo
+}
+
+interface SavedPlayset {
+    name: String,
+    playset: Playset
 }
 
 export function WaitingScreen(props: WaitingScreenProps) {
@@ -29,6 +34,32 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let [currentPlayset, setCurrentPlayset] = useState<Playset>({
         cardGroups: []
     });
+
+    function mergePlaysetWith(otherPlayset: Playset){
+        console.log("Merging");
+        
+        let cardGroups = [...currentPlayset.cardGroups];
+        for(let groupToAdd of otherPlayset.cardGroups){
+            let alreadyInPlayset = false;
+            for(let group of currentPlayset.cardGroups){
+                if(cardGroupEqual(group, groupToAdd)){
+                    alreadyInPlayset = true;
+                    break;
+                }   
+            }
+            if(!alreadyInPlayset){
+                cardGroups.push(groupToAdd)
+            }
+        }
+
+        console.log("Setting new playset with", cardGroups);
+        
+        setCurrentPlayset({
+            cardGroups: cardGroups
+        });
+        setPlaysetHasUnsavedChanges(true);
+    }
+
     let [playsetHasUnsavedChanges, setPlaysetHasUnsavedChanges] = useState(false);
 
 
@@ -37,6 +68,8 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let [isPlaysetViewCollapsed, setPlaysetViewCollapsed] = useState(false);
 
     let [gameStartErrorMessages, setGameStartErrorMessages] = useState("");
+
+    let savedPlaysets: SavedPlayset[] = JSON.parse(localStorage.getItem("savedPlaysets") || "[]");
 
 
     function activateCard(card: Card) {
@@ -94,20 +127,29 @@ export function WaitingScreen(props: WaitingScreenProps) {
             })
 
             props.socketInfo.socket.on("confirmNewRoundInfo", (hasError: boolean, message: string) => {
-                if(hasError){
+                if (hasError) {
                     alert(message)
                 } else {
                     alert("Successfully updated round info");
                 }
             })
-            
+
             return () => {
                 props.socketInfo.socket.off("gameStateResponse");
                 props.socketInfo.socket.off("newPlayset");
                 props.socketInfo.socket.off("confirmNewRoundInfo");
             }
         }
-    })
+    });
+
+    useEffect(() => {
+        console.log("entered useeffect for gamecode", gameCode);
+
+        if (gameCode !== null) {
+            console.log("emitted gameset request.");
+            props.socketInfo.socket.emit("getPlayset", gameCode);
+        }
+    }, [gameCode]);
 
     function setPlayset() {
         if (gameCode !== null) {
@@ -115,16 +157,16 @@ export function WaitingScreen(props: WaitingScreenProps) {
         }
     }
 
-    function setRoundInfo(roundInfo: RoundInfo[]){
-        if(gameCode !== null){
+    function setRoundInfo(roundInfo: RoundInfo[]) {
+        if (gameCode !== null) {
             props.socketInfo.socket.emit("setRoundInfo", gameCode, roundInfo);
         }
     }
 
-    function sendStartGameMessage(){
+    function sendStartGameMessage() {
         console.log("trying to send startGame");
-        
-        if(gameCode !== null){
+
+        if (gameCode !== null) {
             props.socketInfo.socket.emit("requestStartGame", gameCode);
         }
     }
@@ -135,48 +177,73 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
     return (
         <div id={styles.waitingScreen}>
-            <h1><span style={{color: `rgba(0, 0, 0, 0.7)`, fontWeight: 'lighter'}}>Game Code:</span> {gameCode}</h1>
+            <h1><span style={{ color: `rgba(0, 0, 0, 0.7)`, fontWeight: 'lighter' }}>Game Code:</span> {gameCode}</h1>
             <div id="nameList">
                 <p>Players ({namesList.length}): {namesList.join(", ")}</p>
             </div>
 
-            {isGameCreator && (
-                <RoundDesigner playerCount={namesList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
-            )}
+            <div className={styles.gameConfigureSection}>
+                {isGameCreator && (
+                    <RoundDesigner playerCount={namesList.length} submitRoundInfo={setRoundInfo}></RoundDesigner>
+                )}
+            </div>
 
-            {isGameCreator && (
-                <span>
-                    <input id="collapsePlaysetDesignerCheckbox" type={"checkbox"} checked={isPlaysetViewCollapsed} onChange={() => setPlaysetViewCollapsed(!isPlaysetViewCollapsed)}></input>
-                    <label htmlFor="collapsePlaysetDesignerCheckbox">Collapse Playset Designer</label>
-                </span>
-            )}
+            <div className={styles.gameConfigureSection}>
+                {isGameCreator && (
+                    <span>
+                        <input id="collapsePlaysetDesignerCheckbox" type={"checkbox"} checked={isPlaysetViewCollapsed} onChange={() => setPlaysetViewCollapsed(!isPlaysetViewCollapsed)}></input>
+                        <label htmlFor="collapsePlaysetDesignerCheckbox">Collapse Playset Designer</label>
+                    </span>
+                )}
+                {isGameCreator ? (
+                    !isPlaysetViewCollapsed && (
+                        <div id="playsetDesigner">
+                            <PlaysetComponent groupCards={true} isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
 
-
-            {isGameCreator ? (
-                !isPlaysetViewCollapsed && (
-                    <div id="playsetDesigner">
-                        <PlaysetComponent groupCards={true} isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
-                        <div id="cardInventory">
-                            {
-                                Cards.map(card => (
-                                    <InventoryCard key={card.cardId.toString()} card={card} activePlayset={currentPlayset} activateCard={activateCard}></InventoryCard>
-                                ))
-                            }
+                            {savedPlaysets.length > 0 && (
+                                <>
+                                    <h3>Use a Saved Playset</h3>
+                                    <div id={styles.savedPlaysetsWrapper}>
+                                        {savedPlaysets.map((e, ind) => (
+                                            <div key={ind} className={styles.savedPlayset}>
+                                                <p><b>{e.name} ({numCardsInPlayset(e.playset)})</b></p>
+                                                    {e.playset.cardGroups.map((group, groupIndex) => (
+                                                        <p key={groupIndex}>- {group.cards.map(e => e.displayName).join(", ")}</p>
+                                                    ))}
+                                                <button onClick={() => mergePlaysetWith(e.playset)}>Add to playset</button>
+                                                <button onClick={() => {
+                                                    setCurrentPlayset(e.playset);
+                                                    setPlaysetHasUnsavedChanges(true);
+                                                }}>Overwrite playset</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                            <div id="cardInventory" style={{ marginTop: "2em" }}>
+                                {
+                                    Cards.map(card => (
+                                        <InventoryCard key={card.cardId.toString()} card={card} activePlayset={currentPlayset} activateCard={activateCard}></InventoryCard>
+                                    ))
+                                }
+                            </div>
                         </div>
-                    </div>
-                )
-            ) : (
-                <PlaysetComponent isEditable={false} playset={currentPlayset} groupCards={true}></PlaysetComponent>
-            )}
+                    )
+                ) : (
+                    <PlaysetComponent isEditable={false} playset={currentPlayset} groupCards={true}></PlaysetComponent>
+                )}
+            </div>
 
-            {
-                isGameCreator && (
-                    <div style={{padding: '2em'}}>
-                        <button onClick={() => sendStartGameMessage()}>Start Game</button>
-                        <p>{gameStartErrorMessages}</p>
-                    </div>
-                )
-            }
+            <div className={styles.gameConfigureSection}>
+                {
+                    isGameCreator && (
+                        <div style={{ paddingBottom: '2em', fontSize: "2em" }}>
+                            <button onClick={() => sendStartGameMessage()}>Start Game</button>
+                            <p>{gameStartErrorMessages}</p>
+                        </div>
+                    )
+                }
+            </div>
 
 
         </div>
