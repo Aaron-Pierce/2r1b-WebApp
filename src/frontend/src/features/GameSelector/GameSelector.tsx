@@ -78,7 +78,12 @@ export function GameSelector(props: GameSelectorProps) {
         <div id={styles.gameSelectorSection}>
 
             <div id={styles.joinSection}>
-                <h1>Two Rooms and a Boom V1.2</h1>
+                <div className={styles.noMargins}>
+                    <p>An digital adaptation of...</p>
+                    <h1>Two Rooms and a Boom</h1>
+                    <p>by <a href="https://www.tuesdayknightgames.com/tworoomsandaboom">Tuesday Knight Games</a>, adapted by <a href="https://github.com/Aaron-Pierce">Aaron Pierce</a></p>
+                    <p>Version 1.2</p>
+                </div>
                 <h2>Join a Game</h2>
                 <form onSubmit={e => e.preventDefault()}>
                     <input placeholder="Your Name" id="yourNameInput" name="name" className={styles.input}></input>
@@ -94,6 +99,12 @@ export function GameSelector(props: GameSelectorProps) {
                 <br />
                 <button onClick={createGame} className={styles.btn}>Create</button>
                 <p id="successIndicator"></p>
+            </div>
+
+            <div id={styles.rulebookSection}>
+                <a href="/rulebooks/TwoRooms_Rulebook_v3.pdf">Rulebook (4mb pdf)</a>
+                <br></br>
+                <a href="/rulebooks/TwoRooms_CharacterGuide_v3.pdf">Character Guide (1.5mb pdf)</a>
             </div>
         </div>
     )

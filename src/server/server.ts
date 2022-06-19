@@ -9,6 +9,7 @@ import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketDa
 import { GameState, RoundInfo } from '../shared/types';
 import { Card, getCardsFromPlayset, verifyPairs } from '../shared/cards';
 import { Playset } from '../shared/playset';
+import compression from "compression";
 
 const app = express();
 const httpServer = process.env.DEV ? createServer(app) : createHttpsServer({
@@ -17,7 +18,9 @@ const httpServer = process.env.DEV ? createServer(app) : createHttpsServer({
 }, app);
 const port = process.env.DEV ? 3000 : 443;
 
-app.use(express.static(path.join(__dirname, "/../../build/frontend/")))
+
+app.use(compression());
+app.use(express.static(path.join(__dirname, "/../../build/frontend/")));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, "/../../build/frontend/index.html"));
