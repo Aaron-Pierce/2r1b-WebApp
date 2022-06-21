@@ -126,7 +126,7 @@ export function ManualDeal() {
                                 })
                             }
                         </div>
-                        <div style={{ padding: "1em" }}>
+                        <div style={{ padding: "1em", paddingBottom: "3em" }}>
                             <button onClick={() => {
                                 document.getElementById("topAnchor")?.scrollIntoView();
                                 setDealMode(!dealMode);
