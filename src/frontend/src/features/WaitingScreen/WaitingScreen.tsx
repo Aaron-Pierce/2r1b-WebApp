@@ -12,16 +12,13 @@ import { CardStack } from "./CardGroup/CardStack";
 import { numCardsInPlayset, Playset, cardGroupEqual } from "../../shared/playset";
 import { PlaysetComponent } from "./Playset/PlaysetComponent";
 import { RoundDesigner } from "./RoundDesigner/RoundDesiger";
+import { mergePlaysetWith, SavedPlaysets } from "./SavedPlaysets/SavedPlaysets";
 
 
 export interface WaitingScreenProps {
     socketInfo: ServerSocketInfo
 }
 
-interface SavedPlayset {
-    name: String,
-    playset: Playset
-}
 
 export function WaitingScreen(props: WaitingScreenProps) {
 
@@ -35,30 +32,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
         cardGroups: []
     });
 
-    function mergePlaysetWith(otherPlayset: Playset){
-        console.log("Merging");
-        
-        let cardGroups = [...currentPlayset.cardGroups];
-        for(let groupToAdd of otherPlayset.cardGroups){
-            let alreadyInPlayset = false;
-            for(let group of currentPlayset.cardGroups){
-                if(cardGroupEqual(group, groupToAdd)){
-                    alreadyInPlayset = true;
-                    break;
-                }   
-            }
-            if(!alreadyInPlayset){
-                cardGroups.push(groupToAdd)
-            }
-        }
-
-        console.log("Setting new playset with", cardGroups);
-        
-        setCurrentPlayset({
-            cardGroups: cardGroups
-        });
-        setPlaysetHasUnsavedChanges(true);
-    }
 
     let [playsetHasUnsavedChanges, setPlaysetHasUnsavedChanges] = useState(false);
 
@@ -68,9 +41,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
     let [isPlaysetViewCollapsed, setPlaysetViewCollapsed] = useState(false);
 
     let [gameStartErrorMessages, setGameStartErrorMessages] = useState("");
-
-    let savedPlaysets: SavedPlayset[] = JSON.parse(localStorage.getItem("savedPlaysets") || "[]");
-
 
     function activateCard(card: Card) {
         let newGroup = cardGroupFromMember(card);
@@ -200,26 +170,15 @@ export function WaitingScreen(props: WaitingScreenProps) {
                         <div id="playsetDesigner">
                             <PlaysetComponent groupCards={true} isEditable={isGameCreator} playset={currentPlayset} removeCallback={(ind) => removeStackFromPlaysetByIndex(ind)} hasUnsavedChanges={playsetHasUnsavedChanges} confirmPlaysetCallback={() => setPlayset()}></PlaysetComponent>
 
-                            {savedPlaysets.length > 0 && (
-                                <>
-                                    <h3>Use a Saved Playset</h3>
-                                    <div id={styles.savedPlaysetsWrapper}>
-                                        {savedPlaysets.map((e, ind) => (
-                                            <div key={ind} className={styles.savedPlayset}>
-                                                <p><b>{e.name} ({numCardsInPlayset(e.playset)})</b></p>
-                                                    {e.playset.cardGroups.map((group, groupIndex) => (
-                                                        <p key={groupIndex}>- {group.cards.map(e => e.displayName).join(", ")}</p>
-                                                    ))}
-                                                <button onClick={() => mergePlaysetWith(e.playset)}>Add to playset</button>
-                                                <button onClick={() => {
-                                                    setCurrentPlayset(e.playset);
-                                                    setPlaysetHasUnsavedChanges(true);
-                                                }}>Overwrite playset</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                            <SavedPlaysets mergeCallback={(playset: Playset) => {
+                                mergePlaysetWith(currentPlayset, playset, setCurrentPlayset)
+                                setPlaysetHasUnsavedChanges(true);
+                            }}
+                                overwriteCallback={(p: Playset) => {
+                                    setCurrentPlayset(p)
+                                    setPlaysetHasUnsavedChanges(true);
+                                }}
+                            ></SavedPlaysets>
                             <div id="cardInventory" style={{ marginTop: "2em" }}>
                                 {
                                     Cards.map(card => (
@@ -244,8 +203,6 @@ export function WaitingScreen(props: WaitingScreenProps) {
                     )
                 }
             </div>
-
-
         </div>
     )
 }

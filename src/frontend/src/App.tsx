@@ -15,6 +15,7 @@ import { Playset } from './shared/playset';
 import { Card } from './shared/cards';
 import { setNamesList, setPlayerInfo, setRoundEndUTCString, setRoundIndex, setState } from './features/GameSelector/gameSlice';
 import { GameView } from './features/GameView/GameView';
+import { ManualDeal } from './features/ManualDeal/ManualDeal';
 
 export interface ServerSocketInfo {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;

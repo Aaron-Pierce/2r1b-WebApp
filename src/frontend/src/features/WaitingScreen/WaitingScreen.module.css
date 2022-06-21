@@ -10,16 +10,3 @@
 .gameConfigureSection{
     margin-top: 2em;
 }
-
-#savedPlaysetsWrapper{
-    display: flex;
-    width: 100%;
-    overflow-x: scroll;
-}
-
-.savedPlayset{
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    min-width: 10em;
-}
