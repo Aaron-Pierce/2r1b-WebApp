@@ -1,3 +1,5 @@
 .parcel-cache/
 node_modules/
 build/
+stress_tests/node_modules/
+stress_tests/dist/

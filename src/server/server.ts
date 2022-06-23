@@ -102,6 +102,8 @@ httpServer.listen(port, () => {
         socket.join(gameCode);
 
         if (rejoining) {
+          console.log("Rejoining...", playersName);
+          
           // player is already in the game, we should push them along if appropriate
           runningGames[gameCode].disconnectedPlayers.delete(userId)
           runningGames[gameCode].players.add(userId)
@@ -119,7 +121,7 @@ httpServer.listen(port, () => {
         } else {
           // new player
           runningGames[gameCode].players.add(userId);
-          console.log("A player has joined! Players: ", runningGames[gameCode].players);
+          // console.log("A player has joined! Players: ", runningGames[gameCode].players);
           // tell everyone a new list of names
           let nameList = Array.from(runningGames[gameCode].players).map(p => playerIdNames[p.toString()]);
           io.to(gameCode).emit("namesList", nameList);
@@ -135,7 +137,7 @@ httpServer.listen(port, () => {
       delete playerIdNames[playerId];
 
       if (runningGames[gameCode]) {
-        console.log("Before disconnect", runningGames[gameCode].players);
+        // console.log("Before disconnect", runningGames[gameCode].players);
         let state = runningGames[gameCode].state;
         if (state === GameState.WaitingOnPlayers) {
           runningGames[gameCode].players.delete(playerId);
@@ -143,13 +145,13 @@ httpServer.listen(port, () => {
           runningGames[gameCode].disconnectedPlayers.add(playerId);
           runningGames[gameCode].players.delete(playerId);
         }
-        console.log("After disconnect", runningGames[gameCode].players);
+        // console.log("After disconnect", runningGames[gameCode].players);
 
 
 
         let nameList = Array.from(runningGames[gameCode].players).map(p => playerIdNames[p.toString()]);
         getSocketIDsForGame(gameCode).forEach(socketId => {
-          console.log("emitting namesList ", nameList, " to socketid", socketId, " which we think is ", playerIdNames[socketIdToPlayerIDMap[socketId]]);
+          // console.log("emitting namesList ", nameList, " to socketid", socketId, " which we think is ", playerIdNames[socketIdToPlayerIDMap[socketId]]);
           io.to(socketId).emit("namesList", nameList);
         });
 
@@ -199,7 +201,6 @@ httpServer.listen(port, () => {
     socket.on("setPlayset", (gameCode, playset) => {
       if (runningGames[gameCode]) {
         runningGames[gameCode].playset = playset;
-        console.log(getSocketIDsForGame(gameCode).map(e => socketIdToPlayerIDMap[e]));
         io.to(gameCode).emit("newPlayset", playset);
       }
     })

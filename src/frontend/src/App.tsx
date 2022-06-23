@@ -63,15 +63,21 @@ function App(props: AppProps) {
       dispatch(setNamesList(namesList));
     }
 
+    let disconnectHandler = () => {
+      window.location.reload();
+    }
+
     props.socketInfo.socket.on("gameStartSignal", gameStartListener)
     props.socketInfo.socket.on("updateTimer", updateTimerListener)
     props.socketInfo.socket.on("gameEnd", endGameListener)
     props.socketInfo.socket.on("namesList", newNamesListListener)
+    props.socketInfo.socket.on("disconnect", disconnectHandler)
     return () => {
       props.socketInfo.socket.off("gameStartSignal", gameStartListener)
       props.socketInfo.socket.off("updateTimer", updateTimerListener)
       props.socketInfo.socket.off("gameEnd", endGameListener)
       props.socketInfo.socket.off("namesList", newNamesListListener)
+      props.socketInfo.socket.off("disconnect", disconnectHandler);
       console.log("Cleaning up app");
       
     }
