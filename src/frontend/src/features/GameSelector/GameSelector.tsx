@@ -1,7 +1,7 @@
 import { useState, FormEvent, KeyboardEvent, useEffect } from "react"
 import { ServerSocketInfo } from "../../App";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectCode, selectIsCreator, selectState, setCode, setIsCreator } from "./gameSlice";
+import { selectCode, setCode, setIsCreator } from "./gameSlice";
 import styles from "./GameSelector.module.css";
 import { ManualDeal } from "../ManualDeal/ManualDeal";
 
@@ -14,10 +14,6 @@ export function GameSelector(props: GameSelectorProps) {
     let currentGameCode = useAppSelector(selectCode);
     let [gameCode, setGameCode] = useState("");
     let dispatch = useAppDispatch();
-
-    let [showManualDeal, setShowManualDeal] = useState(false);
-
-
 
     function handleChange(evt: FormEvent) {
         setGameCode(((evt.target) as HTMLInputElement).value.toLowerCase())

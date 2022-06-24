@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { GameState, RoundInfo } from '../../shared/types';
 import { RootState } from '../../app/store';
 import { Card } from '../../shared/cards';

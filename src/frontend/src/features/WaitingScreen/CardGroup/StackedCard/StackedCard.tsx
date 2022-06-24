@@ -8,6 +8,6 @@ interface GroupedCardProps{
 
 export function GroupedCard(props: GroupedCardProps){
     return <div className={styles.groupedCard} style={{top: `-${Math.max(0, 250*(props.index) - 10*props.index)}px`, left: `${10 * props.index}px`}}>
-        <img src={`/cardImages/${props.card.cardId}.jpg`}></img>
+        <img alt="A two rooms card" src={`/cardImages/${props.card.cardId}.jpg`}></img>
     </div>
 }

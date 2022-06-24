@@ -5,11 +5,9 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectCode, selectIsCreator, selectNamesList, selectState, setState } from "../GameSelector/gameSlice"
 
 import styles from "./WaitingScreen.module.css";
-import { Card, cardGroupFromMember, Cards, getCardsFromPlayset } from "../../shared/cards";
-import { PlaysetCard } from "./PlaysetCard/PlaysetCard";
+import { Card, cardGroupFromMember, Cards } from "../../shared/cards";
 import { InventoryCard } from "./InventoryCard/InventoryCard";
-import { CardStack } from "./CardGroup/CardStack";
-import { numCardsInPlayset, Playset, cardGroupEqual } from "../../shared/playset";
+import { Playset } from "../../shared/playset";
 import { PlaysetComponent } from "./Playset/PlaysetComponent";
 import { RoundDesigner } from "./RoundDesigner/RoundDesiger";
 import { mergePlaysetWith, SavedPlaysets } from "./SavedPlaysets/SavedPlaysets";
@@ -40,7 +38,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
 
     let [isPlaysetViewCollapsed, setPlaysetViewCollapsed] = useState(false);
 
-    let [gameStartErrorMessages, setGameStartErrorMessages] = useState("");
+    let [gameStartErrorMessages, _setGameStartErrorMessages] = useState("");
 
     function activateCard(card: Card) {
         let newGroup = cardGroupFromMember(card);
@@ -119,7 +117,7 @@ export function WaitingScreen(props: WaitingScreenProps) {
             console.log("emitted gameset request.");
             props.socketInfo.socket.emit("getPlayset", gameCode);
         }
-    }, [gameCode]);
+    }, [gameCode, props.socketInfo]);
 
     function setPlayset() {
         if (gameCode !== null) {

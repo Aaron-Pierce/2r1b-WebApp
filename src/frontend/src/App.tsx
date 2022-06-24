@@ -1,21 +1,17 @@
 import React, { useEffect } from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
 import './App.css';
 import { GameSelector } from './features/GameSelector/GameSelector';
 import { WaitingScreen } from './features/WaitingScreen/WaitingScreen';
 
 
-import { io, Socket } from "socket.io-client"
+import { Socket } from "socket.io-client"
 import { ClientToServerEvents, ServerToClientEvents } from "./shared/SocketIOEvents";
-import { nanoid } from 'nanoid';
 import { useAppDispatch } from './app/hooks';
 import { GameState, RoundInfo } from './shared/types';
 import { Playset } from './shared/playset';
 import { Card } from './shared/cards';
 import { setNamesList, setPlayerInfo, setRoundEndUTCString, setRoundIndex, setState } from './features/GameSelector/gameSlice';
 import { GameView } from './features/GameView/GameView';
-import { ManualDeal } from './features/ManualDeal/ManualDeal';
 
 export interface ServerSocketInfo {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -81,7 +77,7 @@ function App(props: AppProps) {
       console.log("Cleaning up app");
       
     }
-  }, []);
+  }, [props.socketInfo, dispatch]);
 
 
   return (

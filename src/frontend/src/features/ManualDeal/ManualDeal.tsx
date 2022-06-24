@@ -1,20 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card, cardGroupFromMember, Cards, getCardsFromPlayset } from "../../shared/cards";
-import { cardGroupEqual, numCardsInPlayset, Playset } from "../../shared/playset";
+import { Playset } from "../../shared/playset";
 import { InventoryCard } from "../WaitingScreen/InventoryCard/InventoryCard";
 import { PlaysetComponent } from "../WaitingScreen/Playset/PlaysetComponent";
 import { mergePlaysetWith, SavedPlaysets } from "../WaitingScreen/SavedPlaysets/SavedPlaysets";
 import styles from "./ManualDeal.module.css";
 import { QRCodeSVG } from "qrcode.react"
 import { PlayerCard } from "../GameView/PlayerCard/PlayerCard";
-
-
-interface SavedPlayset {
-    name: String,
-    playset: Playset
-}
-
-
 
 function hashCode(str: String) {
     let hash = 0;
@@ -100,8 +92,6 @@ export function ManualDeal() {
             cardGroups: currentPlayset.cardGroups.filter((e, ind) => ind !== index)
         })
     }
-
-    let savedPlaysets: SavedPlayset[] = JSON.parse(localStorage.getItem("savedPlaysets") || "[]");
 
     if(playerCard){
         return (

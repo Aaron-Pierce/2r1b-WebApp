@@ -1,4 +1,4 @@
-import { getDefaultRoundSettingsAtPlayerCount, RoundInfo } from "../../../shared/types"
+import { RoundInfo } from "../../../shared/types"
 
 import styles from "./RoundInfoDisplay.module.css";
 

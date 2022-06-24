@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardGroup, Cards, getCardByID } from "../../../shared/cards";
+import { CardGroup } from "../../../shared/cards";
 import { Playset } from "../../../shared/playset";
 import styles from "./CardStack.module.css";
 import { GroupedCard } from "./StackedCard/StackedCard";

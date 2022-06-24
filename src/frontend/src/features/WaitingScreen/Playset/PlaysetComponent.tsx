@@ -22,9 +22,9 @@ export function PlaysetComponent(props: PlaysetComponentProps) {
     let [isSticky, setIsSticky] = useState(true);
 
     if (props.isEditable) {
-        if (props.removeCallback === undefined) throw "Editable PlaysetComponent must have a removeCallback"
-        if (props.hasUnsavedChanges === undefined) throw "Editable PlaysetComponent must have a hasUnsavedChanges prop set"
-        if (props.confirmPlaysetCallback === undefined) throw "Editable PlaysetComponent must have a confirmPlaysetCallback"
+        if (props.removeCallback === undefined) throw new Error("Editable PlaysetComponent must have a removeCallback")
+        if (props.hasUnsavedChanges === undefined) throw new Error("Editable PlaysetComponent must have a hasUnsavedChanges prop set")
+        if (props.confirmPlaysetCallback === undefined) throw new Error("Editable PlaysetComponent must have a confirmPlaysetCallback")
     }
 
 

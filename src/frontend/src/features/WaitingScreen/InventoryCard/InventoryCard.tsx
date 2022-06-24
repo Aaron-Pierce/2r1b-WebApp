@@ -11,6 +11,6 @@ export interface InventoryCardProps {
 
 export function InventoryCard(props: InventoryCardProps){
     return <div className={styles.inventoryCard}>
-        <img src={"cardImages/" + props.card.cardId + ".jpg"} onClick={() => props.activateCard(props.card)}></img>
+        <img alt="A two rooms card" src={"cardImages/" + props.card.cardId + ".jpg"} onClick={() => props.activateCard(props.card)}></img>
     </div>
 }
