@@ -63,17 +63,23 @@ function App(props: AppProps) {
       window.location.reload();
     }
 
+    let buriedCardHandler = (buriedCard: Card | null) => {
+      alert("Buried card was: " + (buriedCard === null ? "null" :  buriedCard.cardId));
+    }
+
     props.socketInfo.socket.on("gameStartSignal", gameStartListener)
     props.socketInfo.socket.on("updateTimer", updateTimerListener)
     props.socketInfo.socket.on("gameEnd", endGameListener)
     props.socketInfo.socket.on("namesList", newNamesListListener)
     props.socketInfo.socket.on("disconnect", disconnectHandler)
+    props.socketInfo.socket.on("respondBuriedCard", buriedCardHandler)
     return () => {
       props.socketInfo.socket.off("gameStartSignal", gameStartListener)
       props.socketInfo.socket.off("updateTimer", updateTimerListener)
       props.socketInfo.socket.off("gameEnd", endGameListener)
       props.socketInfo.socket.off("namesList", newNamesListListener)
       props.socketInfo.socket.off("disconnect", disconnectHandler);
+      props.socketInfo.socket.off("respondBuriedCard", buriedCardHandler);
       console.log("Cleaning up app");
       
     }

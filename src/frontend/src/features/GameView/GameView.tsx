@@ -79,6 +79,12 @@ export function GameView(props: GameViewProps) {
             props.socketInfo.socket.emit("requestGameEnd", gameCode);
         }
     }
+
+    function requestBuriedCard(){
+        if(gameCode){
+            props.socketInfo.socket.emit("getBuriedCard", gameCode);
+        }
+    }
     
     if (playerInfo === null) return <></>;
     if (playerInfo.card === null || playerInfo.card === undefined) {
@@ -122,6 +128,12 @@ export function GameView(props: GameViewProps) {
                 {
                     isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && roundIndex === (playerInfo.roundStructure.length - 1) && (
                         <button onClick={() => requestEndGame()}>End Game</button>
+                    )
+                }
+                
+                {
+                    isCreator && roundEndUTCString && (Date.now() - new Date(roundEndUTCString.toString()).getTime() >= -1000) && roundIndex === (playerInfo.roundStructure.length - 1) && (
+                        <button onClick={() => requestBuriedCard()}>Get Buried Card</button>
                     )
                 }
 

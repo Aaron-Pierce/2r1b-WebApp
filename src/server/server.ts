@@ -335,6 +335,17 @@ httpServer.listen(port, () => {
         }
       }
     })
+
+    
+    socket.on("getBuriedCard", (gameCode) => {
+      if (runningGames[gameCode] && runningGames[gameCode].creatorId === socketIdToPlayerIDMap[socket.id]) {
+        if (runningGames[gameCode].currentRoundIndex === runningGames[gameCode].roundStructure.length - 1) {
+          if (Date.now() >= runningGames[gameCode].roundEndDate.getTime() - 1000) {
+            socket.emit("respondBuriedCard", runningGames[gameCode].buriedCard)
+          }
+        }
+      }
+    })
   })
 })
 

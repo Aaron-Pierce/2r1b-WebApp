@@ -14,6 +14,7 @@ export interface ServerToClientEvents {
     updateTimer: (roundEndUTCString: String) => void;
     newRound: (roundIndex: number, roundEndUTCString: String) => void;
     gameEnd: () => void;
+    respondBuriedCard: (card: Card | null) => void;
 }
 
 export interface ClientToServerEvents {
@@ -27,6 +28,7 @@ export interface ClientToServerEvents {
     requestAdvanceRound: (gameCode: string) => void;
     requestGameEnd: (gameCode: string) => void;
     getPlayset: (gameCode: string) => void,
+    getBuriedCard: (gameCode: string) => void,
 }
 
 export interface InterServerEvents {
