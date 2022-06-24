@@ -16,7 +16,7 @@ export function GameSelector(props: GameSelectorProps) {
     let dispatch = useAppDispatch();
 
     function handleChange(evt: FormEvent) {
-        setGameCode(((evt.target) as HTMLInputElement).value.toLowerCase())
+        setGameCode(((evt.target) as HTMLInputElement).value.toLowerCase().trim())
     }
 
 
@@ -51,7 +51,7 @@ export function GameSelector(props: GameSelectorProps) {
     }
 
     function createGame() {
-        let gameId = (document.getElementById("gameId") as HTMLInputElement).value.toLowerCase()
+        let gameId = (document.getElementById("gameId") as HTMLInputElement).value.toLowerCase().trim()
         props.socketInfo.socket.emit("createGame", gameId, props.socketInfo.userid);
     }
 
