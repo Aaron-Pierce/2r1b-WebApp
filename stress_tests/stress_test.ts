@@ -67,7 +67,7 @@ async function run(url: string, name: string) {
 
 
 
-for(let i = 0; i < 20; i++){
+for(let i = 0; i < 30; i++){
     // connect_to_game("http://localhost:3000", "Player " + i);
     new Worker("./dist/worker_invocation.js")
 }

@@ -25,4 +25,4 @@ async function run(url: string, name: string) {
         browser.close();
     }, 120000)
 }
-run("http://localhost:3000", "p" + Math.floor(Math.random() * 100));
+run("https://2r1b.apierce.dev", "p" + Math.floor(Math.random() * 100));

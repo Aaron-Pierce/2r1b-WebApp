@@ -10,3 +10,7 @@
     justify-content: center;
     align-items: center;
 }
+
+.backgroundTint{
+    background-color: rgba(255, 0, 0, 0.2);
+}

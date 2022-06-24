@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, cardGroupFromMember, Cards, getCardsFromPlayset } from "../../shared/cards";
 import { cardGroupEqual, numCardsInPlayset, Playset } from "../../shared/playset";
 import { InventoryCard } from "../WaitingScreen/InventoryCard/InventoryCard";
@@ -6,6 +6,7 @@ import { PlaysetComponent } from "../WaitingScreen/Playset/PlaysetComponent";
 import { mergePlaysetWith, SavedPlaysets } from "../WaitingScreen/SavedPlaysets/SavedPlaysets";
 import styles from "./ManualDeal.module.css";
 import { QRCodeSVG } from "qrcode.react"
+import { PlayerCard } from "../GameView/PlayerCard/PlayerCard";
 
 
 interface SavedPlayset {
@@ -15,9 +16,40 @@ interface SavedPlayset {
 
 
 
+function hashCode(str: String) {
+    let hash = 0;
+    for (let i = 0, len = str.length; i < len; i++) {
+        let chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+
 export function ManualDeal() {
     let [currentPlayset, setCurrentPlayset] = useState<Playset>({ cardGroups: [] })
     let [dealMode, setDealMode] = useState(false);
+    let [playerCard, setPlayerCard] = useState<Card | null>(null);
+    let [shouldLinkDirectlyToImage, setShouldLinkDirectlyToImage] = useState(false);
+
+    useEffect(() => {
+        if(window.location.hash){
+            console.log("hash is ", window.location.hash);
+            
+            let hashedCardId = window.location.hash.substring(1);
+            console.log("Stripped card id");
+            
+            for(let c of Cards){
+                if(hashCode(c.cardId) === parseInt(hashedCardId)){
+                    console.log("Found cardId match", c);
+                    setPlayerCard(c);
+                    break;
+                }
+            }
+        }
+    }, [])
+
 
     // https://bost.ocks.org/mike/shuffle/
     function getShuffledCardsFromPlayset() {
@@ -71,6 +103,12 @@ export function ManualDeal() {
 
     let savedPlaysets: SavedPlayset[] = JSON.parse(localStorage.getItem("savedPlaysets") || "[]");
 
+    if(playerCard){
+        return (
+            <PlayerCard card={playerCard} publicRevealed={false}></PlayerCard>
+        )
+    }
+
     return (
         <div id={styles.manualDeal}>
             <div id="topAnchor"></div>
@@ -110,16 +148,23 @@ export function ManualDeal() {
             {
                 dealMode && (
                     <>
+                        <input onChange={() => setShouldLinkDirectlyToImage(!shouldLinkDirectlyToImage)} checked={shouldLinkDirectlyToImage} type={"checkbox"} name="useImageCheckbox" id="useImageCheckbox"></input>
+                        <label htmlFor="useImageCheckbox">Should link directly to image?</label>
                         <div id={styles.qrCodeWrapper}>
                             {
                                 getShuffledCardsFromPlayset().map((card, index, arr) => {
-                                    return <div className={styles.dealtQRCode} key={card.displayName + index.toString()}>
+                                    let cardUrl = window.location.origin + "/?manual#" + hashCode(card.cardId);
+                                    if(shouldLinkDirectlyToImage){
+                                        cardUrl = window.location.origin + "/cardImages/" + card.cardId + ".jpg"
+                                    }
+                                    return <div className={`${styles.dealtQRCode} ${shouldLinkDirectlyToImage && styles.backgroundTint}`} key={card.displayName + index.toString()}>
                                         {/* <h1>{card.cardId}</h1> */}
                                         <div onClick={() => {
                                             let confirm = window.confirm("Open card in new window?")
-                                            if(confirm) window.open(window.location.origin + "/cardImages/" + card.cardId + ".jpg");
+                                            if(confirm) window.open(cardUrl);
                                         }}>
-                                            <QRCodeSVG size={256} value={window.location.origin + "/cardImages/" + card.cardId + ".jpg"} />
+                                            {/* <QRCodeSVG size={256} value={window.location.origin + "/cardImages/" + card.cardId + ".jpg"} /> */}
+                                            <QRCodeSVG size={256} value={cardUrl} />
                                         </div>
                                         <h1>{index + 1} / {arr.length}</h1>
                                     </div>
